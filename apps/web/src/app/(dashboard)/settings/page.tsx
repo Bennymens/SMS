@@ -1,131 +1,85 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table';
-import {
   Settings,
-  CreditCard,
-  User,
-  Bell,
+  School,
+  GraduationCap,
   Shield,
-  Download,
-  CheckCircle2,
-  Clock,
+  Database,
+  Bell,
   Save,
-  FileText,
-  DollarSign,
-  Receipt,
+  CheckCircle2,
+  Lock,
+  Download,
+  RefreshCw,
+  Sliders,
 } from 'lucide-react';
 
-const studentFeeLedger = [
-  {
-    id: 'INV-2026-001',
-    description: 'Term 1 Tuition & Core Academics',
-    amount: 'GH₵ 3,200.00',
-    dueDate: 'Sep 15, 2026',
-    paidDate: 'Sep 10, 2026',
-    status: 'PAID',
-    method: 'MTN Mobile Money (•••• 8901)',
-  },
-  {
-    id: 'INV-2026-002',
-    description: 'ICT Lab & Science Practical Levy',
-    amount: 'GH₵ 650.00',
-    dueDate: 'Sep 25, 2026',
-    paidDate: 'Sep 20, 2026',
-    status: 'PAID',
-    method: 'Telecel Cash',
-  },
-  {
-    id: 'INV-2026-003',
-    description: 'PTA Dues & School Development Fund',
-    amount: 'GH₵ 250.00',
-    dueDate: 'Oct 01, 2026',
-    paidDate: 'Sep 28, 2026',
-    status: 'PAID',
-    method: 'GCB Bank Transfer',
-  },
-  {
-    id: 'INV-2026-004',
-    description: 'Official GES Textbooks & Stationery Pack',
-    amount: 'GH₵ 750.00',
-    dueDate: 'Oct 05, 2026',
-    paidDate: 'Oct 02, 2026',
-    status: 'PAID',
-    method: 'MTN Mobile Money (•••• 8901)',
-  },
-  {
-    id: 'INV-2026-005',
-    description: 'Term 2 Advance Tuition & Facility Access',
-    amount: 'GH₵ 3,200.00',
-    dueDate: 'Jan 12, 2027',
-    paidDate: '—',
-    status: 'UPCOMING',
-    method: 'Pending',
-  },
-];
+export default function AdminSettingsPage() {
+  const [activeTab, setActiveTab] = useState<'institution' | 'academics' | 'security' | 'backup'>('institution');
+  const [savedSuccess, setSavedSuccess] = useState(false);
 
-export default function SettingsPage() {
-  const [activeTab, setActiveTab] = React.useState<'fees' | 'profile' | 'notifications' | 'security'>('fees');
+  const [institutionData, setInstitutionData] = useState({
+    schoolName: 'EduManage International Academy',
+    schoolCode: 'SCH-OAK-2024',
+    academicYear: '2024 / 2025',
+    currentTerm: 'Term 1 (Fall Semester)',
+    principalName: 'Dr. Arthur Thorne',
+    contactEmail: 'admin@oakridge.edu',
+    contactPhone: '+1 (555) 301-4400',
+    address: '100 Academic Boulevard, Suite 400',
+    currency: 'USD ($)',
+  });
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
 
   return (
     <div className="space-y-6 max-w-5xl">
-      {/* Page Title */}
+      {/* Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Settings className="h-6 w-6 text-foreground" />
-            Account Settings & Fee Statements
+            Institution & System Settings
           </h1>
           <p className="text-muted-foreground text-sm">
-            View term financial statements, official receipts, profile information, and account preferences.
+            Configure school identity, academic calendars, grading scales, role permissions, and database snapshots.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="success" className="text-xs">
-            Account In Good Standing
+            System Operational • v2.4.0
           </Badge>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
+      {/* Tabs */}
       <div className="flex items-center gap-2 border-b pb-3 overflow-x-auto">
         <Button
-          variant={activeTab === 'fees' ? 'default' : 'outline'}
+          variant={activeTab === 'institution' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setActiveTab('fees')}
+          onClick={() => setActiveTab('institution')}
           className="text-xs gap-1.5"
         >
-          <CreditCard className="h-3.5 w-3.5" />
-          Fee Statement & Billing
+          <School className="h-3.5 w-3.5" />
+          Institution Profile
         </Button>
         <Button
-          variant={activeTab === 'profile' ? 'default' : 'outline'}
+          variant={activeTab === 'academics' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setActiveTab('profile')}
+          onClick={() => setActiveTab('academics')}
           className="text-xs gap-1.5"
         >
-          <User className="h-3.5 w-3.5" />
-          Profile Details
-        </Button>
-        <Button
-          variant={activeTab === 'notifications' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setActiveTab('notifications')}
-          className="text-xs gap-1.5"
-        >
-          <Bell className="h-3.5 w-3.5" />
-          Notifications
+          <GraduationCap className="h-3.5 w-3.5" />
+          Academic & Grading
         </Button>
         <Button
           variant={activeTab === 'security' ? 'default' : 'outline'}
@@ -134,233 +88,267 @@ export default function SettingsPage() {
           className="text-xs gap-1.5"
         >
           <Shield className="h-3.5 w-3.5" />
-          Security
+          Access & Roles
+        </Button>
+        <Button
+          variant={activeTab === 'backup' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setActiveTab('backup')}
+          className="text-xs gap-1.5"
+        >
+          <Database className="h-3.5 w-3.5" />
+          Backups & Maintenance
         </Button>
       </div>
 
-      {/* TAB 1: FEE STATEMENT & BILLING */}
-      {activeTab === 'fees' && (
-        <div className="space-y-5">
-          {/* Quick Balance Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-medium">Outstanding Balance</p>
-                  <p className="text-2xl font-bold mt-1 text-foreground">GH₵ 0.00</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">All Term 1 bills settled</p>
-                </div>
-                <div className="rounded-xl bg-muted/60 p-2.5 text-foreground border border-border/50">
-                  <CheckCircle2 className="h-5 w-5" />
-                </div>
-              </CardContent>
-            </Card>
+      {savedSuccess && (
+        <div className="flex items-center gap-2 p-3 text-xs rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <span>System configuration updated successfully.</span>
+        </div>
+      )}
 
-            <Card>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-medium">Total Paid YTD</p>
-                  <p className="text-2xl font-bold mt-1 text-foreground">GH₵ 4,850.00</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">2024 / 2025 Academic Year</p>
+      {/* TAB 1: INSTITUTION */}
+      {activeTab === 'institution' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <School className="h-4 w-4 text-foreground" />
+              School Details & Academic Cycle
+            </CardTitle>
+            <CardDescription>Primary institution metadata displayed on report cards and fee invoices.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSave} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-foreground">Institution Legal Name</label>
+                  <input
+                    type="text"
+                    value={institutionData.schoolName}
+                    onChange={(e) => setInstitutionData({ ...institutionData, schoolName: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  />
                 </div>
-                <div className="rounded-xl bg-muted/60 p-2.5 text-foreground border border-border/50">
-                  <Receipt className="h-5 w-5" />
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-foreground">Institutional Code</label>
+                  <input
+                    type="text"
+                    value={institutionData.schoolCode}
+                    onChange={(e) => setInstitutionData({ ...institutionData, schoolCode: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-medium">Next Billing Term</p>
-                  <p className="text-2xl font-bold mt-1 text-foreground">Jan 12, 2027</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Term 2: GH₵ 3,200.00</p>
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-foreground">Active Academic Year</label>
+                  <input
+                    type="text"
+                    value={institutionData.academicYear}
+                    onChange={(e) => setInstitutionData({ ...institutionData, academicYear: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  />
                 </div>
-                <div className="rounded-xl bg-muted/60 p-2.5 text-foreground border border-border/50">
-                  <Clock className="h-5 w-5" />
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-foreground">Current Instructional Term</label>
+                  <input
+                    type="text"
+                    value={institutionData.currentTerm}
+                    onChange={(e) => setInstitutionData({ ...institutionData, currentTerm: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Fee Statement Table */}
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <CardTitle className="text-base font-semibold flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary" />
-                    Official Fee Statement & Receipts
-                  </CardTitle>
-                  <CardDescription>
-                    Student ID: SCH-2025-00001 • Grade 10 Section A (Alex Smith)
-                  </CardDescription>
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-foreground">Head of School / Principal</label>
+                  <input
+                    type="text"
+                    value={institutionData.principalName}
+                    onChange={(e) => setInstitutionData({ ...institutionData, principalName: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  />
                 </div>
-                <Button variant="outline" size="sm" className="gap-1.5 text-xs w-fit">
-                  <Download className="h-3.5 w-3.5" />
-                  Download Complete Statement (PDF)
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-foreground">Default Accounting Currency</label>
+                  <select
+                    value={institutionData.currency}
+                    onChange={(e) => setInstitutionData({ ...institutionData, currency: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  >
+                    <option>USD ($)</option>
+                    <option>GHS (GH₵)</option>
+                    <option>EUR (€)</option>
+                    <option>GBP (£)</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-foreground">Administrative Contact Email</label>
+                  <input
+                    type="email"
+                    value={institutionData.contactEmail}
+                    onChange={(e) => setInstitutionData({ ...institutionData, contactEmail: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-foreground">Switchboard Phone</label>
+                  <input
+                    type="text"
+                    value={institutionData.contactPhone}
+                    onChange={(e) => setInstitutionData({ ...institutionData, contactPhone: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  />
+                </div>
+                <div className="sm:col-span-2 space-y-1.5">
+                  <label className="font-semibold text-foreground">Campus Physical Address</label>
+                  <input
+                    type="text"
+                    value={institutionData.address}
+                    onChange={(e) => setInstitutionData({ ...institutionData, address: e.target.value })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end pt-2">
+                <Button type="submit" size="sm" className="gap-1.5 text-xs">
+                  <Save className="h-3.5 w-3.5" />
+                  Save Institution Profile
                 </Button>
               </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* TAB 2: ACADEMIC & GRADING */}
+      {activeTab === 'academics' && (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Sliders className="h-4 w-4 text-foreground" />
+                Standard Grading Scheme & Cutoffs
+              </CardTitle>
+              <CardDescription>System-wide grading thresholds applied when computing cumulative grade point averages (GPA).</CardDescription>
             </CardHeader>
-            <CardContent className="p-0">
-              <Table className="min-w-[700px]">
-                <TableHeader>
-                  <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    <TableHead className="font-semibold text-foreground">Invoice No</TableHead>
-                    <TableHead className="font-semibold text-foreground">Item Description</TableHead>
-                    <TableHead className="font-semibold text-foreground">Amount</TableHead>
-                    <TableHead className="font-semibold text-foreground">Due Date</TableHead>
-                    <TableHead className="font-semibold text-foreground">Status</TableHead>
-                    <TableHead className="font-semibold text-foreground">Payment Channel</TableHead>
-                    <TableHead className="font-semibold text-foreground text-right">Receipt</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {studentFeeLedger.map((inv) => (
-                    <TableRow key={inv.id} className="hover:bg-muted/20">
-                      <TableCell className="p-3 font-mono text-muted-foreground">{inv.id}</TableCell>
-                      <TableCell className="p-3 font-semibold text-foreground">{inv.description}</TableCell>
-                      <TableCell className="p-3 font-bold text-foreground">{inv.amount}</TableCell>
-                      <TableCell className="p-3 text-muted-foreground">{inv.dueDate}</TableCell>
-                      <TableCell className="p-3">
-                        <Badge
-                          variant={inv.status === 'PAID' ? 'success' : 'secondary'}
-                          className="text-[10px]"
-                        >
-                          {inv.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="p-3 text-muted-foreground">{inv.method}</TableCell>
-                      <TableCell className="p-3 text-right">
-                        {inv.status === 'PAID' ? (
-                          <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
-                            <Download className="h-3 w-3" />
-                            PDF
-                          </Button>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">—</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <CardContent className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
+                <div className="p-3 rounded-lg border bg-muted/30 text-center">
+                  <p className="font-bold text-lg text-emerald-600">A+</p>
+                  <p className="text-[11px] text-muted-foreground">90% - 100%</p>
+                  <p className="text-[10px] font-semibold mt-1">4.0 GPA</p>
+                </div>
+                <div className="p-3 rounded-lg border bg-muted/30 text-center">
+                  <p className="font-bold text-lg text-emerald-600">A</p>
+                  <p className="text-[11px] text-muted-foreground">80% - 89%</p>
+                  <p className="text-[10px] font-semibold mt-1">3.7 GPA</p>
+                </div>
+                <div className="p-3 rounded-lg border bg-muted/30 text-center">
+                  <p className="font-bold text-lg text-blue-600">B</p>
+                  <p className="text-[11px] text-muted-foreground">70% - 79%</p>
+                  <p className="text-[10px] font-semibold mt-1">3.0 GPA</p>
+                </div>
+                <div className="p-3 rounded-lg border bg-muted/30 text-center">
+                  <p className="font-bold text-lg text-amber-600">C</p>
+                  <p className="text-[11px] text-muted-foreground">60% - 69%</p>
+                  <p className="text-[10px] font-semibold mt-1">2.0 GPA</p>
+                </div>
+                <div className="p-3 rounded-lg border bg-muted/30 text-center">
+                  <p className="font-bold text-lg text-orange-600">D</p>
+                  <p className="text-[11px] text-muted-foreground">50% - 59%</p>
+                  <p className="text-[10px] font-semibold mt-1">1.0 GPA</p>
+                </div>
+                <div className="p-3 rounded-lg border bg-muted/30 text-center">
+                  <p className="font-bold text-lg text-destructive">F</p>
+                  <p className="text-[11px] text-muted-foreground">&lt; 50%</p>
+                  <p className="text-[10px] font-semibold mt-1">0.0 GPA</p>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t space-y-3">
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="font-semibold text-foreground">Minimum Passing Threshold</p>
+                    <p className="text-muted-foreground">Threshold required to earn academic credit for a course</p>
+                  </div>
+                  <Badge variant="outline">50% (Grade D)</Badge>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="font-semibold text-foreground">Minimum Attendance for Exam Clearance</p>
+                    <p className="text-muted-foreground">Attendance percentage required to sit final term examinations</p>
+                  </div>
+                  <Badge variant="outline">80% Attendance</Badge>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* TAB 2: PROFILE DETAILS */}
-      {activeTab === 'profile' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <User className="h-4 w-4 text-foreground" />
-              Student Profile & User Account
-            </CardTitle>
-            <CardDescription>Personal details and student portal registration</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Full Name</label>
-                <input
-                  type="text"
-                  defaultValue="Alex Smith"
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Student Email</label>
-                <input
-                  type="email"
-                  defaultValue="alex.smith@oakridge.edu"
-                  disabled
-                  className="w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-muted-foreground text-xs"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Ghana Card / ID Number</label>
-                <input
-                  type="text"
-                  defaultValue="GHA-789012345-6"
-                  disabled
-                  className="w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-muted-foreground text-xs"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="font-semibold text-foreground">Phone Number</label>
-                <input
-                  type="text"
-                  defaultValue="+233 24 555 0192"
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-ring text-xs"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end pt-2">
-              <Button size="sm" className="gap-1.5 text-xs">
-                <Save className="h-3.5 w-3.5" />
-                Save Profile Changes
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 3: NOTIFICATIONS */}
-      {activeTab === 'notifications' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Bell className="h-4 w-4 text-foreground" />
-              SMS & Email Alerts
-            </CardTitle>
-            <CardDescription>Academic notices, fee payment receipts, and exam schedules</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-xs">
-            <div className="flex items-center justify-between py-2 border-b">
-              <div>
-                <p className="font-semibold text-foreground">Fee Payment Confirmation Receipts</p>
-                <p className="text-muted-foreground">Instant SMS and email alert upon mobile money payment</p>
-              </div>
-              <Badge variant="success">Active</Badge>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b">
-              <div>
-                <p className="font-semibold text-foreground">Homework & Assignment Reminders</p>
-                <p className="text-muted-foreground">Alert 24 hours prior to deadline</p>
-              </div>
-              <Badge variant="success">Active</Badge>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <p className="font-semibold text-foreground">Term Examination Timetable Notifications</p>
-                <p className="text-muted-foreground">Schedule modifications and exam room updates</p>
-              </div>
-              <Badge variant="success">Active</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 4: SECURITY */}
+      {/* TAB 3: ACCESS & ROLES */}
       {activeTab === 'security' && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Shield className="h-4 w-4 text-foreground" />
-              Security & Credentials
+              Role Permissions & System Access
             </CardTitle>
-            <CardDescription>Password updates and session security</CardDescription>
+            <CardDescription>Security policies governing student, teacher, and parent portal access.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-xs">
+            <div className="flex items-center justify-between py-2 border-b">
+              <div>
+                <p className="font-semibold text-foreground">Enforce 2FA on Faculty & Admin Accounts</p>
+                <p className="text-muted-foreground">Require time-based one-time password on all staff logins</p>
+              </div>
+              <Badge variant="success">Enforced</Badge>
+            </div>
+            <div className="flex items-center justify-between py-2 border-b">
+              <div>
+                <p className="font-semibold text-foreground">Student Portal Self-Service Password Reset</p>
+                <p className="text-muted-foreground">Allow students to reset credentials via registered email</p>
+              </div>
+              <Badge variant="success">Active</Badge>
+            </div>
             <div className="flex items-center justify-between py-2">
               <div>
-                <p className="font-semibold text-foreground">Two-Factor Authentication (2FA)</p>
-                <p className="text-muted-foreground">Require confirmation code on login</p>
+                <p className="font-semibold text-foreground">Teacher Gradebook Modification Window</p>
+                <p className="text-muted-foreground">Lock teacher grade edits 48 hours after exam board submission</p>
               </div>
-              <Button variant="outline" size="sm" className="text-xs">
-                Configure 2FA
+              <Badge variant="secondary">Auto-Lock Enabled</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* TAB 4: BACKUPS */}
+      {activeTab === 'backup' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Database className="h-4 w-4 text-foreground" />
+              Automated Snapshots & Database Maintenance
+            </CardTitle>
+            <CardDescription>PostgreSQL database snapshots, transaction journals, and audit exports.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 text-xs">
+            <div className="p-4 rounded-xl border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="font-semibold text-foreground">Latest Automated Snapshot</p>
+                <p className="text-muted-foreground">October 12, 2026 at 03:00 AM • Size: 42.8 MB • Status: Healthy</p>
+              </div>
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs w-fit">
+                <Download className="h-3.5 w-3.5" />
+                Download Dump
+              </Button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <Button size="sm" className="gap-1.5 text-xs">
+                <RefreshCw className="h-3.5 w-3.5" />
+                Trigger Manual Snapshot Now
+              </Button>
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                Export System Audit Logs (CSV)
               </Button>
             </div>
           </CardContent>

@@ -79,10 +79,11 @@ const adminNav: NavGroup[] = [
     ],
   },
   {
-    label: "Finance",
+    label: "Finance & Admin",
     items: [
       { label: "Fee Management", href: "/admin/fees", icon: CreditCard },
       { label: "Reports", href: "/admin/reports", icon: FileText },
+      { label: "System Settings", href: "/settings", icon: Settings },
     ],
   },
 ]
@@ -112,6 +113,12 @@ const teacherNav: NavGroup[] = [
       { label: "Examinations", href: "/portal/teacher/exams", icon: FileText },
     ],
   },
+  {
+    label: "Account",
+    items: [
+      { label: "Settings & Profile", href: "/portal/teacher/settings", icon: Settings },
+    ],
+  },
 ]
 
 const studentNav: NavGroup[] = [
@@ -136,6 +143,7 @@ const studentNav: NavGroup[] = [
     label: "My Account",
     items: [
       { label: "Profile", href: "/portal/student/profile", icon: Users },
+      { label: "Fees & Billing", href: "/portal/student/fees", icon: CreditCard },
     ],
   },
 ]
@@ -158,9 +166,10 @@ const parentNav: NavGroup[] = [
     ],
   },
   {
-    label: "Finance",
+    label: "Finance & Account",
     items: [
       { label: "Fee Statements", href: "/portal/parent/fees", icon: CreditCard },
+      { label: "Settings", href: "/portal/parent/settings", icon: Settings },
     ],
   },
 ]
@@ -170,31 +179,35 @@ type Role = "admin" | "teacher" | "student" | "parent"
 
 const roleConfig: Record<
   Role,
-  { label: string; color: string; initials: string; nav: NavGroup[] }
+  { label: string; color: string; initials: string; nav: NavGroup[]; settingsHref: string }
 > = {
   admin: {
     label: "School Admin",
     color: "bg-violet-600",
     initials: "SA",
     nav: adminNav,
+    settingsHref: "/settings",
   },
   teacher: {
     label: "Mr. Johnson",
     color: "bg-blue-600",
     initials: "MJ",
     nav: teacherNav,
+    settingsHref: "/portal/teacher/settings",
   },
   student: {
     label: "Alex Smith",
     color: "bg-emerald-600",
     initials: "AS",
     nav: studentNav,
+    settingsHref: "/portal/student/profile",
   },
   parent: {
     label: "Mrs. Smith",
     color: "bg-amber-600",
     initials: "MS",
     nav: parentNav,
+    settingsHref: "/portal/parent/settings",
   },
 }
 
@@ -271,7 +284,7 @@ function RoleSidebar({ role }: { role: Role }) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/settings" prefetch={true} />}>
+            <SidebarMenuButton size="lg" render={<Link href={cfg.settingsHref} prefetch={true} />}>
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarFallback
                   className={`rounded-lg text-white text-xs font-semibold ${cfg.color}`}
