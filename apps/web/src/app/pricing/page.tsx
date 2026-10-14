@@ -22,8 +22,8 @@ const plans = [
     name: 'Starter',
     badge: null,
     tagline: 'Perfect for small schools getting started',
-    monthlyPrice: 149,
-    annualPrice: 119,
+    monthlyPrice: 450,
+    annualPrice: 350,
     color: 'border-border',
     headerBg: 'bg-muted/40',
     btnClass: 'border-foreground text-foreground hover:bg-foreground hover:text-background',
@@ -63,8 +63,8 @@ const plans = [
     name: 'Growth',
     badge: 'Most Popular',
     tagline: 'For growing schools that need more power',
-    monthlyPrice: 349,
-    annualPrice: 279,
+    monthlyPrice: 750,
+    annualPrice: 590,
     color: 'border-violet-500 ring-2 ring-violet-500/30',
     headerBg: 'bg-gradient-to-br from-violet-600 to-blue-600',
     btnClass: 'bg-violet-600 hover:bg-violet-700 text-white',
@@ -104,8 +104,8 @@ const plans = [
     name: 'Enterprise',
     badge: 'Multi-School',
     tagline: 'For school groups, districts & large institutions',
-    monthlyPrice: 799,
-    annualPrice: 639,
+    monthlyPrice: 1500,
+    annualPrice: 1190,
     color: 'border-border',
     headerBg: 'bg-muted/40',
     btnClass: 'border-foreground text-foreground hover:bg-foreground hover:text-background',
@@ -275,7 +275,7 @@ export default function PricingPage() {
 
                   <div className="flex items-end gap-1.5 mt-5">
                     <span className={`text-4xl font-extrabold tracking-tight ${isPopular ? 'text-white' : 'text-foreground'}`}>
-                      ${price}
+                      GH₵{price}
                     </span>
                     <div className="mb-1">
                       <p className={`text-xs font-medium ${isPopular ? 'text-white/75' : 'text-muted-foreground'}`}>
@@ -283,7 +283,7 @@ export default function PricingPage() {
                       </p>
                       {annual && (
                         <p className={`text-[10px] line-through ${isPopular ? 'text-white/50' : 'text-muted-foreground/60'}`}>
-                          ${plan.monthlyPrice}/mo
+                          GH₵{plan.monthlyPrice}/mo
                         </p>
                       )}
                     </div>

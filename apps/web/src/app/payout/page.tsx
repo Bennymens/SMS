@@ -15,9 +15,9 @@ import {
   ArrowLeft,
   Sparkles,
   HelpCircle,
-  Loader2,
   Check,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -51,10 +51,10 @@ const PLANS: Record<PlanType, PlanDetail> = {
     id: 'starter',
     name: 'Starter School',
     badge: 'Single Campus',
-    monthlyPrice: 29,
-    regularPrice: 119,
+    monthlyPrice: 350,
+    regularPrice: 1400,
     discount: '75% OFF',
-    periodText: 'billed monthly ($348/yr value)',
+    periodText: 'billed monthly (GH₵4,200/yr value)',
     features: [
       'Up to 350 students',
       'Custom subdomain (school.edumanage.cloud)',
@@ -68,10 +68,10 @@ const PLANS: Record<PlanType, PlanDetail> = {
     id: 'growth',
     name: 'Growth Academy',
     badge: 'Most Popular',
-    monthlyPrice: 49,
-    regularPrice: 189,
+    monthlyPrice: 590,
+    regularPrice: 2200,
     discount: '79% OFF',
-    periodText: 'billed monthly ($588/yr value)',
+    periodText: 'billed monthly (GH₵7,080/yr value)',
     features: [
       'Up to 1,500 students',
       'Custom domain & branded school portal',
@@ -85,10 +85,10 @@ const PLANS: Record<PlanType, PlanDetail> = {
     id: 'enterprise',
     name: 'Enterprise Network',
     badge: 'Multi-Campus',
-    monthlyPrice: 99,
-    regularPrice: 279,
+    monthlyPrice: 1190,
+    regularPrice: 3500,
     discount: '71% OFF',
-    periodText: 'billed monthly ($1,188/yr value)',
+    periodText: 'billed monthly (GH₵14,280/yr value)',
     features: [
       'Unlimited students & campuses',
       'Custom domain & full white-label branding',
@@ -208,7 +208,7 @@ function PayoutContent() {
           <div className="bg-gray-50 rounded-xl p-5 border text-left text-xs space-y-3">
             <div className="flex justify-between border-b pb-2">
               <span className="text-gray-500">Plan Selected:</span>
-              <span className="font-semibold text-gray-900">{plan.name} (${plan.monthlyPrice}/mo)</span>
+              <span className="font-semibold text-gray-900">{plan.name} (GH₵{plan.monthlyPrice}/mo)</span>
             </div>
             <div className="flex justify-between border-b pb-2">
               <span className="text-gray-500">Administrator:</span>
@@ -313,7 +313,7 @@ function PayoutContent() {
                         {isActive && <Check className="w-3.5 h-3.5 text-[#673de6]" />}
                       </div>
                       <div className="mt-1">
-                        <span className="text-base font-extrabold text-gray-900">${p.monthlyPrice}</span>
+                        <span className="text-base font-extrabold text-gray-900">GH₵{p.monthlyPrice}</span>
                         <span className="text-[10px] text-gray-500">/mo</span>
                       </div>
                     </button>
@@ -570,11 +570,11 @@ function PayoutContent() {
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Provisioning School Portal...
+                      <Spinner className="w-4 h-4" /> Provisioning School Portal...
                     </>
                   ) : (
                     <>
-                      <Lock className="w-4 h-4" /> Confirm Subscription (${plan.monthlyPrice}/mo) & Launch Portal
+                      <Lock className="w-4 h-4" /> Confirm Subscription (GH₵{plan.monthlyPrice}/mo) & Launch Portal
                     </>
                   )}
                 </Button>
@@ -608,8 +608,8 @@ function PayoutContent() {
                     <p className="text-xs text-gray-500">{plan.periodText}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-gray-400 line-through block font-normal">${plan.regularPrice}/mo</span>
-                    <span className="text-2xl font-extrabold text-gray-900">${plan.monthlyPrice}</span>
+                    <span className="text-xs text-gray-400 line-through block font-normal">GH₵{plan.regularPrice}/mo</span>
+                    <span className="text-2xl font-extrabold text-gray-900">GH₵{plan.monthlyPrice}</span>
                     <span className="text-xs text-gray-500 font-normal">/mo</span>
                   </div>
                 </div>
@@ -617,7 +617,7 @@ function PayoutContent() {
                 <div className="border-t border-b py-3 space-y-2 text-xs">
                   <div className="flex justify-between text-gray-600">
                     <span>Cloud Tenant Hosting & Backups</span>
-                    <span className="text-emerald-600 font-semibold">Included ($0)</span>
+                    <span className="text-emerald-600 font-semibold">Included (GH₵0)</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>24-Hour Assisted Data Migration</span>
@@ -633,11 +633,11 @@ function PayoutContent() {
                 <div className="flex items-baseline justify-between pt-1">
                   <div>
                     <p className="text-sm font-bold text-gray-900">Total Due Today</p>
-                    <p className="text-[11px] text-gray-400">Next renewal at ${plan.monthlyPrice}/mo</p>
+                    <p className="text-[11px] text-gray-400">Next renewal at GH₵{plan.monthlyPrice}/mo</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-extrabold text-[#673de6]">${plan.monthlyPrice}</span>
-                    <span className="text-xs text-gray-500 font-medium"> USD</span>
+                    <span className="text-2xl font-extrabold text-[#673de6]">GH₵{plan.monthlyPrice}</span>
+                    <span className="text-xs text-gray-500 font-medium"> GHS</span>
                   </div>
                 </div>
               </div>
@@ -697,7 +697,7 @@ export default function PayoutPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <Loader2 className="w-8 h-8 animate-spin text-[#673de6]" />
+          <Spinner className="w-8 h-8 text-[#673de6]" />
         </div>
       }
     >

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -16,6 +16,8 @@ import {
   RotateCcw,
   Headphones,
   Plus,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +29,7 @@ import {
   NavigationMenuContent,
   NavigationMenuLink,
 } from '@/components/ui/navigation-menu';
+import { Footer } from '@/components/footer';
 
 type ActiveTab = 'admin' | 'finance' | 'academics';
 type PlanType = 'starter' | 'growth' | 'enterprise';
@@ -34,43 +37,96 @@ type PlanType = 'starter' | 'growth' | 'enterprise';
 export default function LandingPage() {
   const [campusTab, setCampusTab] = useState<'single' | 'multi'>('single');
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('growth');
-  const [activeTab, setActiveTab] = useState<ActiveTab>('finance');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('admin');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const tabs: { id: ActiveTab; label: string }[] = [
-    { id: 'admin',    label: 'Admin' },
-    { id: 'finance',  label: 'Finance' },
-    { id: 'academics', label: 'Academics' },
-  ];
+  const handlePrev = () => {
+    setActiveTab((prev) => {
+      if (prev === 'admin') return 'academics';
+      if (prev === 'finance') return 'admin';
+      return 'finance';
+    });
+  };
 
-  const tabContent: Record<ActiveTab, { heading: string; sub: string; link: string; href: string; bullets: string[]; img: string }> = {
-    admin: {
+  const handleNext = () => {
+    setActiveTab((prev) => {
+      if (prev === 'admin') return 'finance';
+      if (prev === 'finance') return 'academics';
+      return 'admin';
+    });
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveTab((prev) => {
+        if (prev === 'admin') return 'finance';
+        if (prev === 'finance') return 'academics';
+        return 'admin';
+      });
+    }, 4200);
+    return () => clearInterval(timer);
+  }, []);
+
+  const roleCards = [
+    {
+      id: 'admin' as ActiveTab,
+      label: 'Admin',
+      subdomain: 'admin.edumanage.cloud',
+      pillText: 'Official School Command Centre — Admin Portal',
+      href: '/admin',
+      img: '/img/Screenshot (916).png',
+      icon: ShieldCheck,
       heading: 'Run the whole school from one command centre.',
       sub: 'From enrollment numbers and staff rosters to exam calendars and campus health scores — the Admin portal gives school owners total institutional visibility.',
       link: 'Explore Admin Portal',
-      href: '/admin',
-      bullets: ['School Health Score 94/100 index', 'Admissions pipeline funnel tracking', 'Academic terms & exam schedules', 'Staff & department management'],
-      img: '/img/Screenshot (916).png',
+      keyFeatures: [
+        { label: 'Institutional Health Score', desc: 'Real-time 94/100 readiness & campus compliance index' },
+        { label: 'Admissions Pipeline Funnel', desc: 'Track applicant stages from inquiry to enrolled pupil' },
+        { label: 'Terms & Examination Calendars', desc: 'Centralized term milestones and examination scheduling' },
+        { label: 'Staff Rosters & RBAC Roles', desc: 'Granular role-based permissions for bursars & teachers' },
+      ],
     },
-    finance: {
+    {
+      id: 'finance' as ActiveTab,
+      label: 'Finance',
+      subdomain: 'bursar.edumanage.cloud',
+      pillText: 'Instant MoMo & Bank Fee Collection — Bursar Portal',
+      href: '/portal/finance',
+      img: '/img/Screenshot (914).png',
+      icon: DollarSign,
       heading: 'Collect fees faster and track every cedi.',
       sub: 'Accept Mobile Money, debit cards, and bank transfers. Automated SMS reminders chase overdue fees so the bursar spends less time chasing and more time reporting.',
       link: 'Explore Finance Portal',
-      href: '/portal/finance',
-      bullets: ['Real-time cash flow & collection charts', 'Mobile Money (MTN / Telecel) gateway', 'Overdue aging analysis & alerts', 'Departmental budget burn-rate tracking'],
-      img: '/img/Screenshot (914).png',
+      keyFeatures: [
+        { label: 'Instant MoMo Gateway', desc: 'Automated direct fee reconciliation for MTN & Telecel MoMo' },
+        { label: 'Automated Overdue Fee SMS', desc: 'Smart reminder chasers that boost term collection rates' },
+        { label: 'Real-Time Bursary Ledger', desc: 'Instant receipt generation & downloadable audit statements' },
+        { label: 'Department Budget Burn-Rate', desc: 'Expense tracking and quarterly threshold overrun alerts' },
+      ],
     },
-    academics: {
+    {
+      id: 'academics' as ActiveTab,
+      label: 'Academics',
+      subdomain: 'academics.edumanage.cloud',
+      pillText: 'Digital Gradebook & Terminal Reports — Academics',
+      href: '/login',
+      img: '/img/Screenshot (915).png',
+      icon: BookOpen,
       heading: 'Digital marking, attendance, and terminal reports.',
       sub: 'Teachers record attendance with one tap, enter CA scores, and the system automatically calculates GPA, class position, and prints formatted report cards.',
       link: 'Explore Teacher Portal',
-      href: '/portal/teacher',
-      bullets: ['Daily attendance register', 'Continuous Assessment gradebook', 'Auto class-position calculation', 'Print-ready term report cards'],
-      img: '/img/Screenshot (915).png',
+      keyFeatures: [
+        { label: '1-Tap Daily Attendance', desc: 'Rapid classroom attendance registers with parent SMS notifications' },
+        { label: 'Continuous Assessment (CA)', desc: 'Standardized 30/70 marking scheme and class test records' },
+        { label: 'Auto GPA & Class Ranking', desc: 'Error-free class positions and cumulative terminal averages' },
+        { label: 'Print-Ready Report Cards', desc: 'Official WAEC/BECE format terminal cards with headteacher remarks' },
+      ],
     },
-  };
+  ];
 
-  const current = tabContent[activeTab];
+  const activeIdx = roleCards.findIndex((c) => c.id === activeTab);
+  const currentCard = roleCards[activeIdx >= 0 ? activeIdx : 0];
+  const CurrentIcon = currentCard.icon;
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#1a1a2e] selection:bg-violet-200">
@@ -198,8 +254,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── MODULE SHOWCASE — tab switcher like Hostinger ───────────────── */}
-      <section id="modules" className="py-20 bg-white max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-12">
+      {/* ── MODULE SHOWCASE — 3-Card Stack & Auto-rotation like Hostinger ── */}
+      <section id="modules" className="py-20 sm:py-24 bg-white max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-12">
         <div className="text-center space-y-3">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
             Tools for every school role
@@ -209,57 +265,338 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center justify-center">
-          <div className="inline-flex items-center gap-1 bg-gray-100 rounded-full p-1">
-            {tabs.map((tab) => (
+        {/* Tab Switcher & Manual Controls */}
+        <div className="flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous Module"
+            className="w-8 h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors shadow-xs"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          <div className="inline-flex items-center gap-1 bg-[#f4f5f6] rounded-full p-1 border border-gray-200">
+            {roleCards.map((card) => (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-5 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${
-                  activeTab === tab.id
+                key={card.id}
+                type="button"
+                onClick={() => setActiveTab(card.id)}
+                className={`relative px-6 py-2 text-sm font-semibold rounded-full transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${
+                  activeTab === card.id
                     ? 'bg-gray-900 text-white shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
-                {tab.label}
+                {activeTab === card.id && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#673de6] shrink-0" />
+                )}
+                {card.label}
               </button>
             ))}
           </div>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next Module"
+            className="w-8 h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors shadow-xs"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Tab Content — left text, right screenshot */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left */}
-          <div className="space-y-5">
-            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700">
-              {activeTab === 'finance' ? <DollarSign className="w-5 h-5" /> :
-               activeTab === 'admin' ? <ShieldCheck className="w-5 h-5" /> :
-               <BookOpen className="w-5 h-5" />}
+        {/* 2-Column Showcase matching Hostinger screenshot */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center pt-4">
+          {/* Left Column: 3 Layered Stacked Cards (7 cols) */}
+          <div className="lg:col-span-7 relative w-full">
+            <div className="relative w-full max-w-xl mx-auto h-[340px] sm:h-[420px] md:h-[460px] pt-12 sm:pt-16 select-none">
+              {roleCards.map((card, idx) => {
+                const diff = (idx - activeIdx + 3) % 3;
+                return (
+                  <div
+                    key={card.id}
+                    onClick={() => setActiveTab(card.id)}
+                    className={`absolute inset-x-0 bottom-0 rounded-2xl overflow-hidden border border-gray-200/90 bg-[#0d0f1d] transform-gpu will-change-transform transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer ${
+                      diff === 0
+                        ? 'z-30 translate-y-0 scale-100 opacity-100 shadow-2xl ring-1 ring-gray-900/10'
+                        : diff === 1
+                        ? 'z-20 -translate-y-5 sm:-translate-y-7 scale-[0.94] opacity-75 shadow-xl'
+                        : 'z-10 -translate-y-10 sm:-translate-y-14 scale-[0.88] opacity-50 shadow-lg'
+                    }`}
+                    style={{
+                      height: 'calc(100% - 44px)',
+                    }}
+                  >
+                    {/* Browser Window Bar */}
+                    <div className="h-7 bg-[#171a2b] border-b border-white/10 px-3 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#ff5f56]" />
+                        <span className="w-2 h-2 rounded-full bg-[#ffbd2e]" />
+                        <span className="w-2 h-2 rounded-full bg-[#27c93f]" />
+                      </div>
+                      <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-black/40 text-[10px] text-gray-300 font-mono">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        {card.subdomain}
+                      </div>
+                      <span className="w-4" />
+                    </div>
+
+                    {/* Full Image Container - object-contain ensures entire screenshot is visible */}
+                    <div className="relative w-full h-[calc(100%-28px)] bg-[#0d0f1d]">
+                      <Image
+                        src={card.img}
+                        alt={card.label}
+                        fill
+                        priority
+                        className="object-contain object-top select-none pointer-events-none"
+                        sizes="(max-width: 768px) 100vw, 650px"
+                      />
+                    </div>
+
+                    {/* Floating Bottom Action Capsule on active card */}
+                    {diff === 0 && (
+                      <div className="absolute bottom-3 inset-x-3 sm:bottom-4 sm:inset-x-4 bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-2xl p-2 sm:p-2.5 shadow-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex items-center gap-2 pl-2 overflow-hidden">
+                          <span className="w-2 h-2 rounded-full bg-[#673de6] shrink-0 animate-ping" />
+                          <span className="text-xs font-bold text-gray-900 truncate">
+                            {card.pillText}
+                          </span>
+                        </div>
+                        <Link href={card.href} onClick={(e) => e.stopPropagation()}>
+                          <div className="h-8 w-8 rounded-xl bg-[#673de6] hover:bg-[#582fd3] text-white flex items-center justify-center shadow-md shrink-0 transition-transform hover:scale-110">
+                            <ArrowRight className="w-4 h-4" />
+                          </div>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-snug">
-              {current.heading}
-            </h3>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              {current.sub}
-            </p>
-            <div className="space-y-2.5">
-              {current.bullets.map((b) => (
-                <div key={b} className="flex items-center gap-2 text-sm text-gray-700">
-                  <Check className="w-4 h-4 text-gray-700 shrink-0" />
-                  {b}
-                </div>
-              ))}
-            </div>
-            <Link href={current.href} className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors group">
-              {current.link}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
           </div>
 
-          {/* Right — Screenshot */}
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-gray-200 aspect-[4/3]">
-            <Image src={current.img} alt={activeTab} fill className="object-cover object-top" />
+          {/* Right Column: Copy (5 cols) */}
+          <div className="lg:col-span-5 space-y-5 lg:pl-4">
+            <div className="w-11 h-11 rounded-2xl bg-gray-900 flex items-center justify-center text-white shadow-lg">
+              <CurrentIcon className="w-5 h-5" />
+            </div>
+
+            <h3 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-snug">
+              {currentCard.heading}
+            </h3>
+
+            <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-lg">
+              {currentCard.sub}
+            </p>
+
+            <div className="pt-1">
+              <Link
+                href={currentCard.href}
+                className="inline-flex items-center gap-2 text-sm font-bold text-gray-900 hover:text-[#673de6] transition-colors group"
+              >
+                <span>{currentCard.link}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Dynamic Key Features for Selected Module */}
+            <div className="pt-4 border-t border-gray-100 space-y-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#673de6]" />
+                Key {currentCard.label} Features
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {currentCard.keyFeatures.map((f) => (
+                  <div
+                    key={f.label}
+                    className="p-3 rounded-xl border border-gray-100 bg-gray-50/80 hover:bg-white hover:border-gray-200 hover:shadow-xs transition-all flex flex-col gap-1"
+                  >
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-gray-900">
+                      <Check className="w-3.5 h-3.5 text-[#673de6] shrink-0" />
+                      <span className="truncate">{f.label}</span>
+                    </div>
+                    <p className="text-[11px] text-gray-500 leading-snug pl-5">
+                      {f.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── SUMMARY OF KEY FEATURES OF EACH MODULE ── */}
+        <div className="pt-10 border-t border-gray-100 space-y-8">
+          <div className="text-center space-y-2 max-w-2xl mx-auto">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#f0effe] text-[#673de6] border border-purple-200">
+              <Sparkles className="w-3.5 h-3.5" />
+              At A Glance
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+              Summary of Key Features by Module
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-600">
+              Three purpose-built portals engineered for Ghanaian basic, preparatory, and secondary schools.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* 1. Admin Module */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-5">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shadow-md">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">
+                    Governance & Ops
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900">Admin Command Centre</h4>
+                  <p className="text-xs text-gray-500 mt-1">For Proprietors, Headteachers & Registrars</p>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Total operational control over enrollment, staff permissions, examination calendars, and campus health.
+                </p>
+
+                <div className="pt-3 border-t border-gray-100 space-y-2.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Key Capabilities:</p>
+                  <ul className="space-y-2 text-xs text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span><strong>Campus Health Score:</strong> 94/100 readiness index & compliance tracking</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span><strong>Admissions Funnel:</strong> Online inquiry to enrolled pupil workflow</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span><strong>Staff Rosters & RBAC:</strong> Role permissions for teachers and bursars</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span><strong>Term & Exam Milestones:</strong> Centralized academic year master scheduling</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/admin"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors"
+                >
+                  Explore Admin Module <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* 2. Finance Module */}
+            <div className="rounded-2xl border-2 border-[#673de6]/30 bg-gradient-to-b from-purple-50/30 to-white p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-5 relative">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-xl bg-[#673de6] text-white flex items-center justify-center shadow-md">
+                    <DollarSign className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-bold text-[#673de6] bg-purple-100 px-2.5 py-0.5 rounded-full">
+                    Revenue & Ledger
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900">Finance & Bursary Portal</h4>
+                  <p className="text-xs text-gray-500 mt-1">For School Bursars, Accountants & Owners</p>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Automated Mobile Money fee collection, instant reconciliation, receipting, and overdue SMS chasers.
+                </p>
+
+                <div className="pt-3 border-t border-purple-100 space-y-2.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Key Capabilities:</p>
+                  <ul className="space-y-2 text-xs text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-[#673de6] shrink-0 mt-0.5" />
+                      <span><strong>Direct MoMo Gateway:</strong> Instant reconciliation for MTN & Telecel MoMo</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-[#673de6] shrink-0 mt-0.5" />
+                      <span><strong>Automated Overdue SMS:</strong> Scheduled fee payment reminders with balances</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-[#673de6] shrink-0 mt-0.5" />
+                      <span><strong>Bursary Ledger & Receipts:</strong> Numbered audit receipts and exportable statements</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-[#673de6] shrink-0 mt-0.5" />
+                      <span><strong>Department Budgeting:</strong> Threshold overrun alerts and expense categorization</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/portal/finance"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-white bg-[#673de6] hover:bg-[#582fd3] shadow-sm transition-colors"
+                >
+                  Explore Finance Module <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* 3. Academics Module */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-5">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                    Classroom & Grading
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900">Academics & Teacher Portal</h4>
+                  <p className="text-xs text-gray-500 mt-1">For Teachers, Subject Heads & Exam Officers</p>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  1-tap mobile attendance, continuous assessment scoring, auto GPA ranking, and printable report cards.
+                </p>
+
+                <div className="pt-3 border-t border-gray-100 space-y-2.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Key Capabilities:</p>
+                  <ul className="space-y-2 text-xs text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span><strong>1-Tap Daily Attendance:</strong> Roll-call registers with instant parent SMS alerts</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span><strong>Continuous Assessment:</strong> Standardized 30/70 CA marking scheme</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span><strong>Auto GPA & Positions:</strong> Automated class ranking and cumulative aggregates</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span><strong>WAEC/BECE Report Cards:</strong> Print-ready terminal sheets with head remarks</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/login"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold text-gray-900 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors"
+                >
+                  Explore Teacher Module <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -341,9 +678,9 @@ export default function LandingPage() {
                 </p>
 
                 <div className="mt-4">
-                  <span className="text-xs text-gray-400 line-through font-normal block">$119</span>
+                  <span className="text-xs text-gray-400 line-through font-normal block">GH₵1,400</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold text-gray-900 tracking-tight">$29</span>
+                    <span className="text-4xl font-extrabold text-gray-900 tracking-tight">GH₵350</span>
                     <span className="text-xs text-gray-500 font-normal">/mo</span>
                   </div>
                 </div>
@@ -358,8 +695,8 @@ export default function LandingPage() {
                 </Link>
 
                 <div className="mt-3 text-[11px] text-gray-500 space-y-0.5">
-                  <p>Get 12 months for $348 (regular price $1,428)</p>
-                  <p>Renews at $49/mo.</p>
+                  <p>Get 12 months for GH₵4,200 (regular price GH₵16,800)</p>
+                  <p>Renews at GH₵590/mo.</p>
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-gray-100 space-y-2.5 text-xs text-gray-700">
@@ -441,9 +778,9 @@ export default function LandingPage() {
                 </p>
 
                 <div className="mt-4">
-                  <span className="text-xs text-gray-400 line-through font-normal block">$189</span>
+                  <span className="text-xs text-gray-400 line-through font-normal block">GH₵2,200</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold text-white tracking-tight">$49</span>
+                    <span className="text-4xl font-extrabold text-white tracking-tight">GH₵590</span>
                     <span className="text-xs text-gray-400 font-normal">/mo</span>
                   </div>
                 </div>
@@ -458,8 +795,8 @@ export default function LandingPage() {
                 </Link>
 
                 <div className="mt-3 text-[11px] text-gray-400 space-y-0.5">
-                  <p>Get 12 months for $588 (regular price $2,268)</p>
-                  <p>Renews at $79/mo.</p>
+                  <p>Get 12 months for GH₵7,080 (regular price GH₵26,400)</p>
+                  <p>Renews at GH₵950/mo.</p>
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-white/10 space-y-2.5 text-xs text-gray-200">
@@ -538,9 +875,9 @@ export default function LandingPage() {
                 </p>
 
                 <div className="mt-4">
-                  <span className="text-xs text-gray-400 line-through font-normal block">$279</span>
+                  <span className="text-xs text-gray-400 line-through font-normal block">GH₵3,500</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold text-gray-900 tracking-tight">$99</span>
+                    <span className="text-4xl font-extrabold text-gray-900 tracking-tight">GH₵1,190</span>
                     <span className="text-xs text-gray-500 font-normal">/mo</span>
                   </div>
                 </div>
@@ -555,8 +892,8 @@ export default function LandingPage() {
                 </Link>
 
                 <div className="mt-3 text-[11px] text-gray-500 space-y-0.5">
-                  <p>Get 12 months for $1,188 (regular price $3,348)</p>
-                  <p>Renews at $149/mo.</p>
+                  <p>Get 12 months for GH₵14,280 (regular price GH₵42,000)</p>
+                  <p>Renews at GH₵1,790/mo.</p>
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-gray-100 space-y-2.5 text-xs text-gray-700">
@@ -662,7 +999,7 @@ export default function LandingPage() {
             },
             {
               q: 'How much does the EduManage platform cost?',
-              a: 'Plans start at $29/mo for Starter School, $49/mo for Growth Academy, and $99/mo for multi-campus Enterprise networks. Every subscription includes cloud hosting, daily backups, support, and continuous software updates with no hidden fees.',
+              a: 'Plans start at GH₵350/mo for Starter School, GH₵590/mo for Growth Academy, and GH₵1,190/mo for multi-campus Enterprise networks. Every subscription includes cloud hosting, daily backups, support, and continuous software updates with no hidden fees.',
             },
             {
               q: 'Is our school and student data secure with EduManage?',
@@ -702,23 +1039,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ──────────────────────────────────────────────────────────── */}
-      <footer className="border-t py-10 bg-white text-xs text-gray-400">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-violet-600 flex items-center justify-center text-white">
-              <GraduationCap className="h-3.5 w-3.5" />
-            </div>
-            <span className="font-semibold text-gray-700">EduManage SMS</span>
-            <span>· © 2026 All rights reserved.</span>
-          </div>
-          <div className="flex items-center gap-5">
-            <Link href="#pricing" className="hover:text-gray-700 transition-colors">Pricing</Link>
-            <Link href="/login" className="hover:text-gray-700 transition-colors">Sign In</Link>
-            <Link href="/portal/finance" className="hover:text-gray-700 transition-colors">Finance Demo</Link>
-            <Link href="/admin" className="hover:text-gray-700 transition-colors">Admin Portal</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -3,7 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff, Loader2, GraduationCap } from "lucide-react"
+import { Eye, EyeOff, GraduationCap } from "lucide-react"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Card,
   CardAction,
@@ -202,7 +203,7 @@ export default function LoginPage() {
                 className="w-full h-10 bg-white text-black font-semibold hover:bg-white/90 rounded-lg transition-all"
               >
                 {isLoading ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Logging in…</>
+                  <><Spinner className="mr-2 h-4 w-4" />Logging in…</>
                 ) : (
                   "Login"
                 )}
