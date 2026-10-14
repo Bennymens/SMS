@@ -18,36 +18,43 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 
 // ── role tab types ────────────────────────────────────────────────────────────
-type Role = "student" | "teacher" | "admin"
+type Role = "admin" | "finance" | "teacher"
 
 const roles: { id: Role; label: string }[] = [
-  { id: "student", label: "Student" },
-  { id: "teacher", label: "Teacher" },
   { id: "admin",   label: "Admin" },
+  { id: "finance", label: "Finance" },
+  { id: "teacher", label: "Teacher" },
 ]
 
 // demo credentials keyed by role
 const demoCredentials: Record<Role, { id: string; password: string; path: string }> = {
-  student: { id: "STU-2024-001", password: "student123", path: "/portal/student" },
-  teacher: { id: "TCH-2024-042", password: "teacher123", path: "/portal/teacher" },
-  admin:   { id: "admin@school.edu", password: "admin123", path: "/admin" },
+  admin:   { id: "admin@school.edu",   password: "admin123",   path: "/admin" },
+  finance: { id: "finance@school.edu", password: "finance123", path: "/portal/finance" },
+  teacher: { id: "TCH-2024-042",       password: "teacher123", path: "/portal/teacher" },
 }
 
 // field labels per role
 const fieldLabels: Record<Role, { id: string; placeholder: string }> = {
-  student: { id: "Student ID", placeholder: "e.g. STU-2024-001" },
-  teacher: { id: "Teacher ID", placeholder: "e.g. TCH-2024-042" },
   admin:   { id: "Email Address", placeholder: "admin@school.edu" },
+  finance: { id: "Email Address", placeholder: "finance@school.edu" },
+  teacher: { id: "Teacher ID",    placeholder: "e.g. TCH-2024-042" },
 }
 
 export default function LoginPage() {
   const router = useRouter()
-  const [role, setRole]                 = React.useState<Role>("student")
+  const [role, setRole]                 = React.useState<Role>("admin")
   const [identifier, setIdentifier]     = React.useState("")
   const [password, setPassword]         = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading]       = React.useState(false)
   const [error, setError]               = React.useState("")
+
+  // prefetch dashboard destinations immediately so navigation is instant
+  React.useEffect(() => {
+    router.prefetch("/admin")
+    router.prefetch("/portal/finance")
+    router.prefetch("/portal/teacher")
+  }, [router])
 
   // reset fields when switching role
   const switchRole = (r: Role) => {
@@ -57,11 +64,10 @@ export default function LoginPage() {
     setError("")
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 1100))
 
     const demo = demoCredentials[role]
     if (identifier === demo.id && password === demo.password) {
@@ -133,7 +139,7 @@ export default function LoginPage() {
                 </Label>
                 <Input
                   id="identifier"
-                  type={role === "admin" ? "email" : "text"}
+                  type={role === "teacher" ? "text" : "email"}
                   placeholder={field.placeholder}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}

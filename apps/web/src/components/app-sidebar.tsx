@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   GraduationCap,
   LayoutDashboard,
@@ -20,7 +20,11 @@ import {
   School,
   BookMarked,
   Trophy,
-  LogOut,
+  DollarSign,
+  AlertCircle,
+  PieChart,
+  Building2,
+  Tag,
 } from "lucide-react"
 import {
   Sidebar,
@@ -83,6 +87,7 @@ const adminNav: NavGroup[] = [
     items: [
       { label: "Fee Management", href: "/admin/fees", icon: CreditCard },
       { label: "Reports", href: "/admin/reports", icon: FileText },
+      { label: "Subscription & Billing", href: "/pricing", icon: Tag },
       { label: "System Settings", href: "/settings", icon: Settings },
     ],
   },
@@ -121,61 +126,39 @@ const teacherNav: NavGroup[] = [
   },
 ]
 
-const studentNav: NavGroup[] = [
+const financeNav: NavGroup[] = [
   {
     label: "Overview",
     items: [
-      { label: "Dashboard", href: "/portal/student", icon: LayoutDashboard },
-      { label: "Announcements", href: "/portal/student/announcements", icon: Bell, badge: 1 },
+      { label: "Dashboard", href: "/portal/finance", icon: LayoutDashboard },
+      { label: "Financial Analytics", href: "/portal/finance/analytics", icon: PieChart },
     ],
   },
   {
-    label: "Academics",
+    label: "Fee Management",
     items: [
-      { label: "My Classes", href: "/portal/student/classes", icon: School },
-      { label: "Timetable", href: "/portal/student/timetable", icon: Calendar },
-      { label: "Assignments", href: "/portal/student/assignments", icon: BookMarked },
-      { label: "Grades & Results", href: "/portal/student/grades", icon: Trophy },
-      { label: "Attendance", href: "/portal/student/attendance", icon: UserCheck },
+      { label: "Fee Collection", href: "/portal/finance/fees", icon: CreditCard },
+      { label: "Outstanding Payments", href: "/portal/finance/outstanding", icon: AlertCircle },
+      { label: "Scholarships & Waivers", href: "/portal/finance/scholarships", icon: Trophy },
     ],
   },
   {
-    label: "My Account",
+    label: "Reporting",
     items: [
-      { label: "Profile", href: "/portal/student/profile", icon: Users },
-      { label: "Fees & Billing", href: "/portal/student/fees", icon: CreditCard },
-    ],
-  },
-]
-
-const parentNav: NavGroup[] = [
-  {
-    label: "Overview",
-    items: [
-      { label: "Dashboard", href: "/portal/parent", icon: LayoutDashboard },
-      { label: "Announcements", href: "/portal/parent/announcements", icon: Bell },
+      { label: "Financial Reports", href: "/portal/finance/reports", icon: FileText },
+      { label: "Budget & Expenditure", href: "/portal/finance/budget", icon: DollarSign },
     ],
   },
   {
-    label: "My Child",
+    label: "Account",
     items: [
-      { label: "Academic Progress", href: "/portal/parent/progress", icon: BarChart3 },
-      { label: "Attendance", href: "/portal/parent/attendance", icon: UserCheck },
-      { label: "Assignments", href: "/portal/parent/assignments", icon: BookMarked },
-      { label: "Results", href: "/portal/parent/results", icon: Trophy },
-    ],
-  },
-  {
-    label: "Finance & Account",
-    items: [
-      { label: "Fee Statements", href: "/portal/parent/fees", icon: CreditCard },
-      { label: "Settings", href: "/portal/parent/settings", icon: Settings },
+      { label: "Settings", href: "/portal/finance/settings", icon: Settings },
     ],
   },
 ]
 
 // ── role metadata ─────────────────────────────────────────────────────────────
-type Role = "admin" | "teacher" | "student" | "parent"
+type Role = "admin" | "teacher" | "finance"
 
 const roleConfig: Record<
   Role,
@@ -195,25 +178,31 @@ const roleConfig: Record<
     nav: teacherNav,
     settingsHref: "/portal/teacher/settings",
   },
-  student: {
-    label: "Alex Smith",
+  finance: {
+    label: "Finance Officer",
     color: "bg-emerald-600",
-    initials: "AS",
-    nav: studentNav,
-    settingsHref: "/portal/student/profile",
-  },
-  parent: {
-    label: "Mrs. Smith",
-    color: "bg-amber-600",
-    initials: "MS",
-    nav: parentNav,
-    settingsHref: "/portal/parent/settings",
+    initials: "FO",
+    nav: financeNav,
+    settingsHref: "/portal/finance/settings",
   },
 }
 
 // ── shared nav renderer ───────────────────────────────────────────────────────
 function NavGroups({ groups }: { groups: NavGroup[] }) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  React.useEffect(() => {
+    // Warm up and prefetch all tab routes so tab switching is instantaneous
+    for (const group of groups) {
+      for (const item of group.items) {
+        if (item.href && item.href !== "#") {
+          router.prefetch(item.href)
+        }
+      }
+    }
+  }, [groups, router])
+
   return (
     <>
       {groups.map((group) => (
@@ -230,6 +219,7 @@ function NavGroups({ groups }: { groups: NavGroup[] }) {
                     <SidebarMenuButton
                       isActive={active}
                       tooltip={item.label}
+                      onMouseEnter={() => router.prefetch(item.href)}
                       render={<Link href={item.href} prefetch={true} />}
                     >
                       <Icon />
@@ -278,56 +268,46 @@ function RoleSidebar({ role }: { role: Role }) {
         <NavGroups groups={cfg.nav} />
       </SidebarContent>
 
-      <SidebarSeparator />
-
-      {/* Footer — user avatar & logout */}
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href={cfg.settingsHref} prefetch={true} />}>
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarFallback
-                  className={`rounded-lg text-white text-xs font-semibold ${cfg.color}`}
-                >
-                  {cfg.initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold text-sm truncate">{cfg.label}</span>
-                <span className="text-xs text-muted-foreground capitalize">{role}</span>
-              </div>
-              <Settings className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              variant="outline"
-              size="sm"
-              className="w-full text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-              render={<Link href="/login" />}
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              <span>Log out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+      {/* Footer — only for admin/teacher (finance uses navbar logout only) */}
+      {role !== "finance" && (
+        <>
+          <SidebarSeparator />
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg" render={<Link href={cfg.settingsHref} prefetch={true} />}>
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarFallback
+                      className={`rounded-lg text-white text-xs font-semibold ${cfg.color}`}
+                    >
+                      {cfg.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col gap-0.5 leading-none">
+                    <span className="font-semibold text-sm truncate">{cfg.label}</span>
+                    <span className="text-xs text-muted-foreground capitalize">{role}</span>
+                  </div>
+                  <Settings className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </>
+      )}
 
       <SidebarRail />
     </Sidebar>
   )
 }
 
-// ── exported sidebars per role ────────────────────────────────────────────────
+// ── exported sidebar (auto-detects role from path) ────────────────────────────
 export function AppSidebar() {
   const pathname = usePathname()
   let role: Role = "admin"
-  if (pathname.startsWith("/portal/student")) {
-    role = "student"
-  } else if (pathname.startsWith("/portal/teacher")) {
+  if (pathname.startsWith("/portal/teacher")) {
     role = "teacher"
-  } else if (pathname.startsWith("/portal/parent")) {
-    role = "parent"
+  } else if (pathname.startsWith("/portal/finance")) {
+    role = "finance"
   }
   return <RoleSidebar role={role} />
 }
@@ -336,10 +316,6 @@ export function TeacherSidebar() {
   return <RoleSidebar role="teacher" />
 }
 
-export function StudentSidebar() {
-  return <RoleSidebar role="student" />
-}
-
-export function ParentSidebar() {
-  return <RoleSidebar role="parent" />
+export function FinanceSidebar() {
+  return <RoleSidebar role="finance" />
 }

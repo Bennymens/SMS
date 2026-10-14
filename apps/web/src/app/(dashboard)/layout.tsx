@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <SidebarTrigger className="-ml-1" />
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/login">
+            <Link href="/">
               <Button
                 variant="ghost"
                 size="sm"
