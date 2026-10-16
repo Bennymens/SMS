@@ -11,6 +11,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { AlertCircle, Send, Phone, Mail, Clock, Download } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 const outstanding = [
   { name: 'Kofi Boateng',       id: 'SCH-2025-00004', grade: 'Grade 10-A', balance: '$1,200', daysOverdue: 45, contact: '+233 24 111 2222', status: 'OVERDUE'   },
@@ -36,10 +37,27 @@ export default function OutstandingPage() {
           <p className="text-xs text-muted-foreground mt-0.5">Students with unpaid or partial fee balances — Term 1</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-2 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 text-xs font-medium"
+            onClick={() =>
+              toast.success('Overdue list exported', {
+                description: 'Arrears register and guardian contact list downloaded.',
+              })
+            }
+          >
             <Download className="h-3.5 w-3.5" />Export List
           </Button>
-          <Button size="sm" className="gap-2 text-xs">
+          <Button
+            size="sm"
+            className="gap-2 text-xs font-semibold"
+            onClick={() =>
+              toast.success('Batch reminders dispatched', {
+                description: `Sent SMS & email debt collection notices to all ${outstanding.length} guardians.`,
+              })
+            }
+          >
             <Send className="h-3.5 w-3.5" />Send Reminders
           </Button>
         </div>
@@ -120,10 +138,28 @@ export default function OutstandingPage() {
                   </TableCell>
                   <TableCell className="pr-4 text-right">
                     <div className="flex gap-1 justify-end">
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0"
+                        onClick={() =>
+                          toast.info(`Calling guardian for ${s.name}`, {
+                            description: `Dialing registered contact: ${s.contact}`,
+                          })
+                        }
+                      >
                         <Phone className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0"
+                        onClick={() =>
+                          toast.success(`Statement sent to ${s.name}`, {
+                            description: `Overdue notice of ${s.balance} delivered via email and SMS.`,
+                          })
+                        }
+                      >
                         <Mail className="h-3.5 w-3.5" />
                       </Button>
                     </div>

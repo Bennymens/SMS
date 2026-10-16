@@ -11,6 +11,7 @@ import {
 import {
   Clock, Download, Calendar as CalendarIcon, CalendarDays, Sparkles, MapPin,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 // ── Shared school events (same as student timetable) ──────────────────────────
 const schoolEvents = [
@@ -147,7 +148,16 @@ export default function TeacherTimetablePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={() =>
+              toast.success('Teaching schedule exported', {
+                description: 'Faculty weekly schedule and calendar downloaded.',
+              })
+            }
+          >
             <Download className="h-3.5 w-3.5" />
             Export Schedule
           </Button>

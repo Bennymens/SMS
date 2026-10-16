@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Bell, Plus, Pin, Calendar } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 const notices = [
   { id: 1, title: 'Term 1 Mid-Term Examination Schedule Released', target: 'All Students & Parents', date: 'Oct 14, 2026', pinned: true },
@@ -25,7 +26,11 @@ export default function AdminAnnouncementsPage() {
             Publish school-wide bulletins, department notices, and emergency alerts.
           </p>
         </div>
-        <Button size="sm" className="gap-1.5 text-xs">
+        <Button
+          size="sm"
+          className="gap-1.5 text-xs"
+          onClick={() => toast.info('New bulletin drafted', { description: 'Opening composer for school-wide announcement...' })}
+        >
           <Plus className="h-3.5 w-3.5" />
           Broadcast Notice
         </Button>

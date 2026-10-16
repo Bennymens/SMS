@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -13,13 +13,20 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  Users, BookOpen, Calendar, Clock, CheckCircle2, FileCheck, Award,
+  Pagination, PaginationContent, PaginationItem, PaginationLink,
+  PaginationPrevious, PaginationNext, PaginationEllipsis,
+} from '@/components/ui/pagination';
+import { Textarea } from '@/components/ui/textarea';
+import { Spinner } from '@/components/ui/spinner';
+import {
+  Users, BookOpen, Calendar, Clock, FileCheck,
   Send, MapPin, UserCheck, Save, Download, Check, TrendingUp,
   ClipboardCheck, Pencil,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 
-// â”€â”€ Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Data ──────────────────────────────────────────────────────────────────────
 const teachingClasses = [
   { id: 'cls-10a', name: 'SHS 1 - Science A',      subject: 'Core Mathematics',        studentsCount: 34, room: 'Block B, Room 10',  nextClass: 'Today, 08:00 AM',   attendanceTaken: true,  classAverage: 82.4 },
   { id: 'cls-10b', name: 'SHS 1 - General Arts',   subject: 'Core Mathematics',        studentsCount: 36, room: 'Block B, Room 12',  nextClass: 'Today, 01:15 PM',   attendanceTaken: false, classAverage: 78.6 },
@@ -72,18 +79,32 @@ function calculateGrade(total: number) {
   return           { grade: 'D7', label: 'Needs Support', variant: 'destructive' as const };
 }
 
-// â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Page ──────────────────────────────────────────────────────────────────────
+const ROWS_PER_PAGE = 4;
+
 export default function TeacherPortalDashboard() {
   const [selectedClassId, setSelectedClassId] = useState('cls-10a');
   const [studentsData, setStudentsData] = useState(initialStudentsByClass);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState(false);
 
-  // Grade Entry Modal
+  // Gradebook pagination
+  const [gradebookPage, setGradebookPage] = useState(1);
+
+  // Grade Entry Dialog (modal)
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<StudentGradeRecord | null>(null);
   const [modalClassScore, setModalClassScore] = useState<number>(0);
   const [modalMidtermScore, setModalMidtermScore] = useState<number>(0);
   const [modalFinalExamScore, setModalFinalExamScore] = useState<number>(0);
   const [modalComment, setModalComment] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Roll-call spinner
+  const [isConfirmingRollCall, setIsConfirmingRollCall] = useState(false);
+
+  // Broadcast
+  const [broadcastText, setBroadcastText] = useState('');
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
 
   const teacher = {
     name: 'Mr. Emmanuel Johnson',
@@ -91,39 +112,64 @@ export default function TeacherPortalDashboard() {
     department: 'Department of Mathematics & Computing',
   };
 
-  const currentClass   = teachingClasses.find((c) => c.id === selectedClassId) || teachingClasses[0];
+  const currentClass    = teachingClasses.find((c) => c.id === selectedClassId) || teachingClasses[0];
   const currentStudents = studentsData[selectedClassId] || [];
 
-  const openGradeModal = (student: StudentGradeRecord) => {
+  // Gradebook pagination derived values (reset page when class changes)
+  const totalGradebookPages = Math.max(1, Math.ceil(currentStudents.length / ROWS_PER_PAGE));
+  const pagedStudents = currentStudents.slice(
+    (gradebookPage - 1) * ROWS_PER_PAGE,
+    gradebookPage * ROWS_PER_PAGE,
+  );
+
+  const openGradeDialog = (student: StudentGradeRecord) => {
     setEditingStudent(student);
     setModalClassScore(student.classScore);
     setModalMidtermScore(student.midtermScore);
     setModalFinalExamScore(student.finalExamScore);
     setModalComment(student.comment);
+    setDialogOpen(true);
   };
 
   const handleSaveModalGrade = () => {
     if (!editingStudent) return;
-    setStudentsData((prev) => {
-      const updated = (prev[selectedClassId] || []).map((s) =>
-        s.id === editingStudent.id
-          ? { ...s, classScore: modalClassScore, midtermScore: modalMidtermScore, finalExamScore: modalFinalExamScore, comment: modalComment }
-          : s
-      );
-      return { ...prev, [selectedClassId]: updated };
-    });
-    setEditingStudent(null);
-    setSaveSuccessMessage(true);
-    setTimeout(() => setSaveSuccessMessage(false), 3500);
+    setIsSaving(true);
+    setTimeout(() => {
+      setStudentsData((prev) => {
+        const updated = (prev[selectedClassId] || []).map((s) =>
+          s.id === editingStudent.id
+            ? { ...s, classScore: modalClassScore, midtermScore: modalMidtermScore, finalExamScore: modalFinalExamScore, comment: modalComment }
+            : s
+        );
+        return { ...prev, [selectedClassId]: updated };
+      });
+      toast.success(`Grades updated for ${editingStudent.name}`, {
+        description: `Total: ${modalTotal}% (${modalGrade.grade}) • Remarks recorded`,
+      });
+      setIsSaving(false);
+      setDialogOpen(false);
+      setEditingStudent(null);
+      setSaveSuccessMessage(true);
+      setTimeout(() => setSaveSuccessMessage(false), 3500);
+    }, 900);
   };
 
   const toggleAttendance = (studentId: string) => {
     setStudentsData((prev) => {
+      let updatedStatus = 'PRESENT';
+      let studentName = '';
       const updated = (prev[selectedClassId] || []).map((s) => {
         if (s.id !== studentId) return s;
+        studentName = s.name;
         const next = s.attendance === 'PRESENT' ? 'LATE' : s.attendance === 'LATE' ? 'ABSENT' : 'PRESENT';
+        updatedStatus = next;
         return { ...s, attendance: next };
       });
+      if (studentName) {
+        toast.info(`Attendance updated: ${studentName}`, {
+          description: `Status changed to ${updatedStatus}.`,
+        });
+      }
       return { ...prev, [selectedClassId]: updated };
     });
   };
@@ -133,6 +179,31 @@ export default function TeacherPortalDashboard() {
       const updated = (prev[selectedClassId] || []).map((s) => ({ ...s, attendance: 'PRESENT' }));
       return { ...prev, [selectedClassId]: updated };
     });
+    toast.success('Attendance updated', {
+      description: 'All students marked as Present for today.',
+    });
+  };
+
+  const handleConfirmRollCall = () => {
+    setIsConfirmingRollCall(true);
+    setTimeout(() => {
+      setIsConfirmingRollCall(false);
+      toast.success('Roll-call confirmed', {
+        description: `Attendance for ${currentClass.name} has been submitted to the register.`,
+      });
+    }, 1200);
+  };
+
+  const handleBroadcast = () => {
+    if (!broadcastText.trim()) return;
+    setIsBroadcasting(true);
+    setTimeout(() => {
+      setIsBroadcasting(false);
+      toast.success('Broadcast notice sent', {
+        description: 'Message published to class stream and mobile app.',
+      });
+      setBroadcastText('');
+    }, 900);
   };
 
   const modalTotal = Math.min(100, Math.max(0, modalClassScore + modalMidtermScore + modalFinalExamScore));
@@ -153,7 +224,7 @@ export default function TeacherPortalDashboard() {
               <Badge variant="secondary" className="text-xs">Ghana Education Service (GES) Faculty</Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {teacher.department} â€¢ Staff ID: <span className="font-mono">{teacher.employeeId}</span>
+              {teacher.department} • Staff ID: <span className="font-mono">{teacher.employeeId}</span>
             </p>
           </div>
         </div>
@@ -210,7 +281,7 @@ export default function TeacherPortalDashboard() {
             <div>
               <p className="text-xs text-muted-foreground font-medium uppercase">Today&apos;s Periods</p>
               <p className="text-2xl font-bold mt-1 text-foreground">3 Sessions</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">1 completed â€¢ 1 next</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">1 completed • 1 next</p>
             </div>
             <div className="rounded-xl bg-muted/60 p-2.5 text-foreground border border-border/50">
               <Clock className="h-5 w-5" />
@@ -232,7 +303,10 @@ export default function TeacherPortalDashboard() {
       </div>
 
       {/* 3. CLASS SELECTOR */}
-      <div className="p-3 rounded-xl border bg-card/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div
+        className="p-3 rounded-xl border bg-card/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        onClick={() => setGradebookPage(1)}
+      >
         <div className="flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-foreground" />
           <span className="text-xs font-semibold text-foreground">Active Teaching Class:</span>
@@ -273,7 +347,7 @@ export default function TeacherPortalDashboard() {
                 {currentClass.room} &bull; {currentClass.studentsCount} students &bull; Avg: {currentClass.classAverage}%
               </CardDescription>
               <p className="text-[11px] text-muted-foreground mt-1">
-                <strong>Tip:</strong> Tap any student name to open the grade entry modal.
+                <strong>Tip:</strong> Tap any student name to open the grade entry panel.
               </p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -291,6 +365,9 @@ export default function TeacherPortalDashboard() {
                   a.setAttribute('href', encodeURI(csv));
                   a.setAttribute('download', `${currentClass.subject.replace(/\s/g,'-')}_Gradebook.csv`);
                   document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                  toast.success('Gradebook exported', {
+                    description: `${currentClass.name} gradebook CSV has been downloaded.`,
+                  });
                 }}
               >
                 <Download className="h-3.5 w-3.5" />
@@ -323,7 +400,7 @@ export default function TeacherPortalDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentStudents.map((st) => {
+                {pagedStudents.map((st) => {
                   const total = Math.min(100, Math.max(0, st.classScore + st.midtermScore + st.finalExamScore));
                   const gradeInfo = calculateGrade(total);
                   return (
@@ -331,7 +408,7 @@ export default function TeacherPortalDashboard() {
                       <TableCell className="p-3">
                         <button
                           type="button"
-                          onClick={() => openGradeModal(st)}
+                          onClick={() => openGradeDialog(st)}
                           className="flex items-center gap-2.5 text-left group cursor-pointer"
                         >
                           <Avatar className="h-7 w-7 rounded-md">
@@ -359,7 +436,7 @@ export default function TeacherPortalDashboard() {
                         <span className="line-clamp-1">{st.comment || 'No comment added'}</span>
                       </TableCell>
                       <TableCell className="p-3 text-right">
-                        <Button size="sm" variant="outline" onClick={() => openGradeModal(st)} className="h-7 px-2 text-xs gap-1">
+                        <Button size="sm" variant="outline" onClick={() => openGradeDialog(st)} className="h-7 px-2 text-xs gap-1">
                           <Pencil className="h-3 w-3" />
                           Edit
                         </Button>
@@ -371,6 +448,47 @@ export default function TeacherPortalDashboard() {
             </Table>
           </div>
         </CardContent>
+
+        {/* Gradebook Pagination */}
+        {totalGradebookPages > 1 && (
+          <div className="px-4 pb-4 pt-2 border-t">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                Page {gradebookPage} of {totalGradebookPages} &bull; {currentStudents.length} students
+              </p>
+              <Pagination className="justify-end w-auto mx-0">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); setGradebookPage((p) => Math.max(1, p - 1)); }}
+                      className={cn(gradebookPage === 1 && 'pointer-events-none opacity-40')}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalGradebookPages }, (_, i) => i + 1).map((pg) => (
+                    <PaginationItem key={pg}>
+                      <PaginationLink
+                        href="#"
+                        isActive={pg === gradebookPage}
+                        onClick={(e) => { e.preventDefault(); setGradebookPage(pg); }}
+                        className="h-8 w-8 text-xs"
+                      >
+                        {pg}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); setGradebookPage((p) => Math.min(totalGradebookPages, p + 1)); }}
+                      className={cn(gradebookPage === totalGradebookPages && 'pointer-events-none opacity-40')}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* 5. ATTENDANCE ROLL-CALL + TODAY'S SCHEDULE (side by side on large screens) */}
@@ -386,7 +504,7 @@ export default function TeacherPortalDashboard() {
                   Roll-Call Attendance
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  {currentClass.name} &bull; Tap badge to toggle: Present â†’ Late â†’ Absent
+                  {currentClass.name} &bull; Tap badge to toggle: Present → Late → Absent
                 </CardDescription>
               </div>
               <Button variant="outline" size="sm" onClick={markAllPresent} className="text-xs h-7 shrink-0">
@@ -422,9 +540,16 @@ export default function TeacherPortalDashboard() {
               ))}
             </div>
             <div className="pt-2 flex justify-end border-t">
-              <Button size="sm" className="h-7 text-xs font-semibold gap-1">
-                <ClipboardCheck className="h-3.5 w-3.5" />
-                Confirm Roll-Call
+              <Button
+                size="sm"
+                className="h-7 text-xs font-semibold gap-1.5"
+                onClick={handleConfirmRollCall}
+                disabled={isConfirmingRollCall}
+              >
+                {isConfirmingRollCall
+                  ? <Spinner className="h-3 w-3" />
+                  : <ClipboardCheck className="h-3.5 w-3.5" />}
+                {isConfirmingRollCall ? 'Submitting...' : 'Confirm Roll-Call'}
               </Button>
             </div>
           </CardContent>
@@ -464,20 +589,26 @@ export default function TeacherPortalDashboard() {
               </div>
             ))}
 
-            {/* Broadcast notice */}
+            {/* Broadcast notice — uses Textarea component */}
             <div className="pt-2 border-t space-y-2">
               <p className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
                 <Send className="h-3 w-3" /> Quick Broadcast Notice
               </p>
-              <input
-                type="text"
+              <Textarea
+                value={broadcastText}
+                onChange={(e) => setBroadcastText(e.target.value)}
                 placeholder="e.g. Bring mathematical instruments tomorrow..."
-                className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground"
+                className="text-xs min-h-[60px]"
               />
               <div className="flex justify-end">
-                <Button size="sm" className="gap-1.5 text-xs h-7 font-semibold">
-                  <Send className="h-3 w-3" />
-                  Send to Class
+                <Button
+                  size="sm"
+                  className="gap-1.5 text-xs h-7 font-semibold"
+                  onClick={handleBroadcast}
+                  disabled={isBroadcasting || !broadcastText.trim()}
+                >
+                  {isBroadcasting ? <Spinner className="h-3 w-3" /> : <Send className="h-3 w-3" />}
+                  {isBroadcasting ? 'Sending...' : 'Send to Class'}
                 </Button>
               </div>
             </div>
@@ -485,96 +616,104 @@ export default function TeacherPortalDashboard() {
         </Card>
       </div>
 
-      {/* 6. GRADE ENTRY MODAL */}
-      <Dialog open={!!editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)}>
-        {editingStudent && (
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <div className="flex items-center gap-3 mb-1">
-                <Avatar className="h-10 w-10 rounded-lg border border-border">
-                  <AvatarFallback className="rounded-lg bg-muted text-foreground font-bold text-xs">
-                    {editingStudent.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <DialogTitle>{editingStudent.name}</DialogTitle>
-                  <DialogDescription>
-                    ID: <span className="font-mono">{editingStudent.id}</span> &bull; {currentClass.name}
-                  </DialogDescription>
+      {/* 6. GRADE ENTRY DIALOG (centered modal) */}
+      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open && !isSaving) { setDialogOpen(false); setEditingStudent(null); } }}>
+        <DialogContent className="sm:max-w-md">
+          {editingStudent && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3 mb-1">
+                  <Avatar className="h-10 w-10 rounded-lg border border-border">
+                    <AvatarFallback className="rounded-lg bg-muted text-foreground font-bold text-xs">
+                      {editingStudent.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <DialogTitle>{editingStudent.name}</DialogTitle>
+                    <DialogDescription>
+                      ID: <span className="font-mono">{editingStudent.id}</span> &bull; {currentClass.name}
+                    </DialogDescription>
+                  </div>
                 </div>
-              </div>
-            </DialogHeader>
+              </DialogHeader>
 
-            <div className="space-y-4 py-2">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-4 py-2">
+                {/* Score Inputs */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground block">
+                      Class Score <span className="text-[10px] text-muted-foreground font-normal">(Max 30)</span>
+                    </label>
+                    <input type="number" min={0} max={30} value={modalClassScore}
+                      onChange={(e) => setModalClassScore(Number(e.target.value))}
+                      className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground block">
+                      Midterm Score <span className="text-[10px] text-muted-foreground font-normal">(Max 30)</span>
+                    </label>
+                    <input type="number" min={0} max={30} value={modalMidtermScore}
+                      onChange={(e) => setModalMidtermScore(Number(e.target.value))}
+                      className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground block">
+                      Final Exam <span className="text-[10px] text-muted-foreground font-normal">(Max 40)</span>
+                    </label>
+                    <input type="number" min={0} max={40} value={modalFinalExamScore}
+                      onChange={(e) => setModalFinalExamScore(Number(e.target.value))}
+                      className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+
+                {/* Grade Summary */}
+                <div className="p-3 rounded-lg border bg-muted/40 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Calculated Total</span>
+                    <span className="text-lg font-bold text-foreground">{modalTotal}%</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Projected WASSCE</span>
+                    <Badge variant="outline" className="font-bold text-xs mt-0.5">
+                      {modalGrade.grade} &bull; {modalGrade.label}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Remarks — uses shadcn Textarea */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground block">
-                    Class Score <span className="text-[10px] text-muted-foreground font-normal">(Max 30)</span>
-                  </label>
-                  <input type="number" min={0} max={30} value={modalClassScore}
-                    onChange={(e) => setModalClassScore(Number(e.target.value))}
-                    className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  <label className="text-xs font-medium text-foreground block">Teacher Remarks &amp; Guidance</label>
+                  <Textarea
+                    rows={3}
+                    value={modalComment}
+                    onChange={(e) => setModalComment(e.target.value)}
+                    placeholder="Enter commendation or learning improvement tips..."
+                    className="text-xs"
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground block">
-                    Midterm Score <span className="text-[10px] text-muted-foreground font-normal">(Max 30)</span>
-                  </label>
-                  <input type="number" min={0} max={30} value={modalMidtermScore}
-                    onChange={(e) => setModalMidtermScore(Number(e.target.value))}
-                    className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground block">
-                    Final Exam <span className="text-[10px] text-muted-foreground font-normal">(Max 40)</span>
-                  </label>
-                  <input type="number" min={0} max={40} value={modalFinalExamScore}
-                    onChange={(e) => setModalFinalExamScore(Number(e.target.value))}
-                    className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                  />
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground flex-wrap">
+                    <span>Quick insert:</span>
+                    <button type="button" onClick={() => setModalComment('Demonstrates strong mathematical acumen and consistency.')} className="hover:text-foreground underline cursor-pointer">+ Excellent</button>
+                    <span>&bull;</span>
+                    <button type="button" onClick={() => setModalComment('Showing marked improvement; keep up homework practice.')} className="hover:text-foreground underline cursor-pointer">+ Improving</button>
+                    <span>&bull;</span>
+                    <button type="button" onClick={() => setModalComment('Needs extra revision on geometric proofs and formulas.')} className="hover:text-foreground underline cursor-pointer">+ Needs Review</button>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg border bg-muted/40 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground block">Calculated Total</span>
-                  <span className="text-lg font-bold text-foreground">{modalTotal}%</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground block">Projected WASSCE</span>
-                  <Badge variant="outline" className="font-bold text-xs mt-0.5">
-                    {modalGrade.grade} &bull; {modalGrade.label}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-foreground block">Teacher Remarks &amp; Guidance</label>
-                <textarea rows={2} value={modalComment} onChange={(e) => setModalComment(e.target.value)}
-                  placeholder="Enter commendation or learning improvement tips..."
-                  className="w-full rounded-md border border-input bg-background p-2.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-                />
-                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground flex-wrap">
-                  <span>Quick insert:</span>
-                  <button type="button" onClick={() => setModalComment('Demonstrates strong mathematical acumen and consistency.')} className="hover:text-foreground underline cursor-pointer">+ Excellent</button>
-                  <span>&bull;</span>
-                  <button type="button" onClick={() => setModalComment('Showing marked improvement; keep up homework practice.')} className="hover:text-foreground underline cursor-pointer">+ Improving</button>
-                  <span>&bull;</span>
-                  <button type="button" onClick={() => setModalComment('Needs extra revision on geometric proofs and formulas.')} className="hover:text-foreground underline cursor-pointer">+ Needs Review</button>
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter showCloseButton={false}>
-              <Button type="button" variant="outline" size="sm" onClick={() => setEditingStudent(null)}>Cancel</Button>
-              <Button type="button" size="sm" onClick={handleSaveModalGrade} className="font-semibold gap-1.5">
-                <Save className="h-3.5 w-3.5" />
-                Save Grades
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
+              <DialogFooter>
+                <Button type="button" variant="outline" size="sm" disabled={isSaving} onClick={() => { setDialogOpen(false); setEditingStudent(null); }}>Cancel</Button>
+                <Button type="button" size="sm" onClick={handleSaveModalGrade} disabled={isSaving} className="font-semibold gap-1.5">
+                  {isSaving ? <Spinner className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
+                  {isSaving ? 'Saving...' : 'Save Grades'}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
       </Dialog>
     </div>
   );

@@ -7,6 +7,7 @@ import { StudentStatusBadge } from './StudentStatusBadge';
 import { StudentStatus } from '@school-management/shared/types/student';
 import { Mail, Phone, Calendar, Edit3, Printer, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from '@/components/ui/toast';
 
 interface StudentProfileHeaderProps {
   student: {
@@ -88,11 +89,28 @@ export const StudentProfileHeader: React.FC<StudentProfileHeaderProps> = ({ stud
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2 text-xs">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs font-medium"
+              onClick={() =>
+                toast.info(`Preparing printable record: ${student.fullName}`, {
+                  description: 'Compiling student dossier, cumulative GPA, and emergency contact sheet.',
+                })
+              }
+            >
               <Printer className="h-3.5 w-3.5" />
               Print Record
             </Button>
-            <Button size="sm" className="gap-2 text-xs">
+            <Button
+              size="sm"
+              className="gap-2 text-xs font-semibold"
+              onClick={() =>
+                toast.info(`Editing ${student.fullName}`, {
+                  description: 'Profile editing modal opened. Ready for parameter updates.',
+                })
+              }
+            >
               <Edit3 className="h-3.5 w-3.5" />
               Edit Profile
             </Button>

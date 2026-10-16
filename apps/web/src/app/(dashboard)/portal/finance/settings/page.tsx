@@ -10,6 +10,7 @@ import {
   Settings, CreditCard, Bell, Shield, Sliders, CheckCircle2,
   Save, AlertCircle, RefreshCw, Key, Building2,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 export default function FinanceSettingsPage() {
   const [currency, setCurrency] = useState('USD ($)');
@@ -21,6 +22,9 @@ export default function FinanceSettingsPage() {
 
   const handleSave = () => {
     setSaved(true);
+    toast.success('Finance settings saved', {
+      description: 'Billing terms, gateway, and notification rules updated.',
+    });
     setTimeout(() => setSaved(false), 2500);
   };
 

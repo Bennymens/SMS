@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter,
@@ -10,11 +10,17 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose,
+} from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
+import { Spinner } from '@/components/ui/spinner';
+import {
   GraduationCap, Users, CreditCard, Clock, UserPlus, ArrowRight,
   TrendingUp, School, Award, Bell, BookOpen, ClipboardList,
   CheckCircle2, AlertTriangle, BarChart3, Settings, Calendar,
-  FileText, Building2, Zap, Activity,
+  FileText, Building2, Zap, Activity, Send,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 // ── Static data ───────────────────────────────────────────────────────────────
 const kpis = [
@@ -88,6 +94,49 @@ const healthMetrics = [
 
 // ── Component ──────────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
+  // Quick Announcement Sheet
+  const [announcementSheetOpen, setAnnouncementSheetOpen] = useState(false);
+  const [announcementTitle, setAnnouncementTitle] = useState('');
+  const [announcementBody, setAnnouncementBody] = useState('');
+  const [announcementAudience, setAnnouncementAudience] = useState('All Staff & Students');
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  // Register Student Sheet
+  const [studentSheetOpen, setStudentSheetOpen] = useState(false);
+  const [studentName, setStudentName] = useState('');
+  const [studentGrade, setStudentGrade] = useState('');
+  const [studentNotes, setStudentNotes] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const handlePublishAnnouncement = () => {
+    if (!announcementTitle.trim() || !announcementBody.trim()) return;
+    setIsPublishing(true);
+    setTimeout(() => {
+      setIsPublishing(false);
+      setAnnouncementSheetOpen(false);
+      setAnnouncementTitle('');
+      setAnnouncementBody('');
+      toast.success('Announcement published', {
+        description: `"${announcementTitle}" sent to ${announcementAudience}.`,
+      });
+    }, 1100);
+  };
+
+  const handleRegisterStudent = () => {
+    if (!studentName.trim() || !studentGrade.trim()) return;
+    setIsRegistering(true);
+    setTimeout(() => {
+      setIsRegistering(false);
+      setStudentSheetOpen(false);
+      setStudentName('');
+      setStudentGrade('');
+      setStudentNotes('');
+      toast.success('Student registered', {
+        description: `${studentName} (${studentGrade}) has been admitted successfully.`,
+      });
+    }, 1200);
+  };
+
   return (
     <div className="space-y-6 p-6">
 
@@ -138,12 +187,25 @@ export default function AdminDashboardPage() {
                 Finance Portal
               </Button>
             </Link>
-            <Link href="/students/admit">
-              <Button size="sm" className="gap-2 text-xs bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:text-gray-900">
-                <UserPlus className="h-3.5 w-3.5" />
-                Admit Student
-              </Button>
-            </Link>
+            {/* Quick Announcement trigger */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs"
+              onClick={() => setAnnouncementSheetOpen(true)}
+            >
+              <Bell className="h-3.5 w-3.5" />
+              Announce
+            </Button>
+            {/* Register student trigger */}
+            <Button
+              size="sm"
+              className="gap-2 text-xs"
+              onClick={() => setStudentSheetOpen(true)}
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              Admit Student
+            </Button>
           </div>
         </div>
       </div>
@@ -305,7 +367,12 @@ export default function AdminDashboardPage() {
             })}
           </CardContent>
           <CardFooter>
-            <Button variant="ghost" size="sm" className="w-full text-xs gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-xs gap-1"
+              onClick={() => toast.success('Audit log opened', { description: 'Full system audit log is now loading.' })}
+            >
               View Full Audit Log <ArrowRight className="h-3 w-3" />
             </Button>
           </CardFooter>
@@ -359,12 +426,14 @@ export default function AdminDashboardPage() {
             ))}
           </CardContent>
           <CardFooter>
-            <Link href="/students/admit" className="w-full">
-              <Button size="sm" className="w-full gap-2 text-xs bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:text-gray-900">
-                <UserPlus className="h-3.5 w-3.5" />
-                Register New Student
-              </Button>
-            </Link>
+            <Button
+              size="sm"
+              className="w-full gap-2 text-xs"
+              onClick={() => setStudentSheetOpen(true)}
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              Register New Student
+            </Button>
           </CardFooter>
         </Card>
       </div>
@@ -389,6 +458,165 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* ── ANNOUNCEMENT SHEET ─────────────────────────────────────────────── */}
+      <Sheet open={announcementSheetOpen} onOpenChange={(open) => { if (!isPublishing) setAnnouncementSheetOpen(open); }}>
+        <SheetContent side="right" className="sm:max-w-md w-full overflow-y-auto">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="flex items-center gap-2">
+              <Bell className="h-4 w-4" /> New Announcement
+            </SheetTitle>
+            <SheetDescription>
+              Broadcast a message to staff, students, or parents across all channels.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Subject / Title</label>
+              <input
+                type="text"
+                value={announcementTitle}
+                onChange={(e) => setAnnouncementTitle(e.target.value)}
+                placeholder="e.g. Sports Day Postponement Notice"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Audience</label>
+              <select
+                value={announcementAudience}
+                onChange={(e) => setAnnouncementAudience(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option>All Staff &amp; Students</option>
+                <option>Students Only</option>
+                <option>Teachers Only</option>
+                <option>Parents &amp; Guardians</option>
+                <option>Administrative Staff</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Message Body</label>
+              <Textarea
+                rows={5}
+                value={announcementBody}
+                onChange={(e) => setAnnouncementBody(e.target.value)}
+                placeholder="Type the full announcement message here..."
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          <SheetFooter className="mt-6 flex gap-2">
+            <SheetClose asChild>
+              <Button variant="outline" size="sm" disabled={isPublishing}>Cancel</Button>
+            </SheetClose>
+            <Button
+              size="sm"
+              className="flex-1 gap-1.5 font-semibold"
+              onClick={handlePublishAnnouncement}
+              disabled={isPublishing || !announcementTitle.trim() || !announcementBody.trim()}
+            >
+              {isPublishing ? <Spinner className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
+              {isPublishing ? 'Publishing...' : 'Publish Announcement'}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      {/* ── REGISTER STUDENT SHEET ─────────────────────────────────────────── */}
+      <Sheet open={studentSheetOpen} onOpenChange={(open) => { if (!isRegistering) setStudentSheetOpen(open); }}>
+        <SheetContent side="right" className="sm:max-w-md w-full overflow-y-auto">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="flex items-center gap-2">
+              <UserPlus className="h-4 w-4" /> Register New Student
+            </SheetTitle>
+            <SheetDescription>
+              Fill in the student&apos;s details to complete admission and generate a student ID.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Full Name</label>
+              <input
+                type="text"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                placeholder="e.g. Kwame Mensah Asante"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground block">Grade / Class</label>
+                <select
+                  value={studentGrade}
+                  onChange={(e) => setStudentGrade(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="">Select grade</option>
+                  <option>Grade 7 (JHS 1)</option>
+                  <option>Grade 8 (JHS 2)</option>
+                  <option>Grade 9 (JHS 3)</option>
+                  <option>Grade 10 (SHS 1)</option>
+                  <option>Grade 11 (SHS 2)</option>
+                  <option>Grade 12 (SHS 3)</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground block">Term of Entry</label>
+                <select
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option>Term 1 — 2026</option>
+                  <option>Term 2 — 2026</option>
+                  <option>Term 3 — 2026</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Guardian / Contact Info</label>
+              <input
+                type="text"
+                placeholder="e.g. +233 24 000 0000 · parent@email.com"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Additional Notes</label>
+              <Textarea
+                rows={3}
+                value={studentNotes}
+                onChange={(e) => setStudentNotes(e.target.value)}
+                placeholder="e.g. transferred from XYZ school, special dietary needs, scholarship applicant..."
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          <SheetFooter className="mt-6 flex gap-2">
+            <SheetClose asChild>
+              <Button variant="outline" size="sm" disabled={isRegistering}>Cancel</Button>
+            </SheetClose>
+            <Button
+              size="sm"
+              className="flex-1 gap-1.5 font-semibold"
+              onClick={handleRegisterStudent}
+              disabled={isRegistering || !studentName.trim() || !studentGrade}
+            >
+              {isRegistering ? <Spinner className="h-3.5 w-3.5" /> : <UserPlus className="h-3.5 w-3.5" />}
+              {isRegistering ? 'Registering...' : 'Complete Admission'}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
     </div>
   );

@@ -35,6 +35,7 @@ import {
   Sparkles,
   Pencil,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 type StudentGrade = {
   id: string;
@@ -133,6 +134,9 @@ export default function TeacherGradesPage() {
     });
     setEditingStudent(null);
     setSaveSuccess(true);
+    toast.success(`Grades updated for ${editingStudent.name}`, {
+      description: `Total: ${modalTotal}% (${modalGrade.letter}) - ${modalGrade.label}`,
+    });
     setTimeout(() => setSaveSuccess(false), 3500);
   };
 
@@ -175,6 +179,9 @@ export default function TeacherGradesPage() {
               link.href = encodeURI(csv);
               link.download = `${activeCohort.className}_Grades.csv`;
               link.click();
+              toast.success('Grades exported', {
+                description: `${activeCohort.className} CSV file downloaded.`,
+              });
             }}
           >
             <Download className="h-3.5 w-3.5" />

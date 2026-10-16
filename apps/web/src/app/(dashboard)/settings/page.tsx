@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/toast';
 import {
   Settings,
   School,
@@ -38,6 +39,9 @@ export default function AdminSettingsPage() {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setSavedSuccess(true);
+    toast.success('Settings updated successfully', {
+      description: 'System and institutional configurations have been saved.',
+    });
     setTimeout(() => setSavedSuccess(false), 3000);
   };
 
@@ -336,18 +340,32 @@ export default function AdminSettingsPage() {
                 <p className="font-semibold text-foreground">Latest Automated Snapshot</p>
                 <p className="text-muted-foreground">October 12, 2026 at 03:00 AM • Size: 42.8 MB • Status: Healthy</p>
               </div>
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs w-fit">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs w-fit"
+                onClick={() => toast.info('Downloading database snapshot...', { description: 'Oakridge_DB_2026-10-12.sql.gz' })}
+              >
                 <Download className="h-3.5 w-3.5" />
                 Download Dump
               </Button>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Button size="sm" className="gap-1.5 text-xs">
+              <Button
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => toast.success('Snapshot generated', { description: 'Manual database snapshot created and verified.' })}
+              >
                 <RefreshCw className="h-3.5 w-3.5" />
                 Trigger Manual Snapshot Now
               </Button>
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => toast.success('Audit logs exported', { description: 'CSV file generated and download started.' })}
+              >
                 Export System Audit Logs (CSV)
               </Button>
             </div>

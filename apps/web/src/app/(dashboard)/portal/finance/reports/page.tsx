@@ -13,6 +13,7 @@ import {
   FileText, Download, Filter, Search, Plus, Calendar, DollarSign,
   TrendingUp, ArrowDownRight, ArrowUpRight, BarChart3, Printer,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 import {
   ChartContainer,
   ChartTooltip,
@@ -78,10 +79,27 @@ export default function FinancialReportsPage() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs font-medium"
+            onClick={() =>
+              toast.info('Sending to printer', {
+                description: 'Formatting executive financial overview for hardcopy printing.',
+              })
+            }
+          >
             <Printer className="w-3.5 h-3.5" /> Print Overview
           </Button>
-          <Button size="sm" className="gap-1.5 text-xs">
+          <Button
+            size="sm"
+            className="gap-1.5 text-xs font-semibold"
+            onClick={() =>
+              toast.success('Report generation triggered', {
+                description: 'Compiling real-time balance sheet, cash flows, and budget variance.',
+              })
+            }
+          >
             <Plus className="w-3.5 h-3.5" /> Generate Report
           </Button>
         </div>
@@ -248,7 +266,16 @@ export default function FinancialReportsPage() {
                   <TableCell className="text-xs text-muted-foreground">{report.generatedBy}</TableCell>
                   <TableCell className="text-xs text-muted-foreground font-mono">{report.size}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" className="h-7 text-xs px-2.5 gap-1.5 text-muted-foreground hover:text-foreground">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs px-2.5 gap-1.5 text-muted-foreground hover:text-foreground font-medium"
+                      onClick={() =>
+                        toast.success(`Downloading ${report.name}`, {
+                          description: `Format: PDF • Size: ${report.size}`,
+                        })
+                      }
+                    >
                       <Download className="w-3.5 h-3.5" /> PDF
                     </Button>
                   </TableCell>

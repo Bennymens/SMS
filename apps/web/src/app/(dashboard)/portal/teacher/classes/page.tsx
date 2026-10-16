@@ -26,6 +26,7 @@ import {
   ArrowRight,
   ClipboardCheck,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 type StudentRosterMember = {
   id: string;
@@ -328,6 +329,9 @@ export default function TeacherClassesPage() {
                   link.href = encodeURI(csv);
                   link.download = `${activeCohort.name.slice(0, 15)}_Roster.csv`;
                   link.click();
+                  toast.success('Roster exported', {
+                    description: `${activeCohort.name} student list downloaded.`,
+                  });
                 }}
               >
                 <Download className="h-3.5 w-3.5" />

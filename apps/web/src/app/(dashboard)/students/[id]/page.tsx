@@ -18,6 +18,7 @@ import {
   Clock,
   Heart,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 export default function StudentDetailPage({
   params,
@@ -341,7 +342,16 @@ export default function StudentDetailPage({
                         {f.status}
                       </Badge>
                     </div>
-                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 gap-1.5 text-xs font-medium"
+                      onClick={() =>
+                        toast.success(`Fee receipt downloaded`, {
+                          description: `Receipt for ${f.title} ($${f.amountPaid.toLocaleString()}) saved.`,
+                        })
+                      }
+                    >
                       <Download className="h-3.5 w-3.5" />
                       Receipt
                     </Button>
@@ -362,7 +372,15 @@ export default function StudentDetailPage({
                 <CardTitle>Student Document Repository</CardTitle>
                 <CardDescription>Verified admission documents and health clearances.</CardDescription>
               </div>
-              <Button size="sm" className="gap-2">
+              <Button
+                size="sm"
+                className="gap-2 text-xs font-semibold"
+                onClick={() =>
+                  toast.info('Upload Document', {
+                    description: 'Opening file scanner and encryption uploader...',
+                  })
+                }
+              >
                 Upload New Document
               </Button>
             </div>
@@ -384,7 +402,16 @@ export default function StudentDetailPage({
                     <Badge variant={doc.isVerified ? 'success' : 'warning'}>
                       {doc.isVerified ? 'Verified' : 'Pending Verification'}
                     </Badge>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() =>
+                        toast.success(`Downloading ${doc.name}`, {
+                          description: `File size: ${doc.size}`,
+                        })
+                      }
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
                   </div>

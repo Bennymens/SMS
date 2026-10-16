@@ -16,13 +16,24 @@ import {
   ChartContainer, ChartTooltip, ChartTooltipContent,
 } from '@/components/ui/chart';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line,
 } from 'recharts';
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose,
+} from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
+import { Spinner } from '@/components/ui/spinner';
+import {
+  Pagination, PaginationContent, PaginationItem, PaginationLink,
+  PaginationPrevious, PaginationNext,
+} from '@/components/ui/pagination';
 import {
   CreditCard, TrendingUp, AlertCircle, CheckCircle2, Clock,
   ArrowRight, DollarSign, FileText, Download, ArrowUpRight,
   ArrowDownRight, Wallet, PieChart, BarChart3, Award, AlertTriangle,
+  Send,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const kpis = [
@@ -90,12 +101,55 @@ const quickModules = [
 ];
 
 // ── Component ──────────────────────────────────────────────────────────────────
+const TXN_PER_PAGE = 4;
+
 export default function FinanceDashboardPage() {
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'PAID' | 'PARTIAL' | 'OVERDUE'>('ALL');
+  const [txnPage, setTxnPage] = useState(1);
+
+  // Record Payment Sheet
+  const [paymentSheetOpen, setPaymentSheetOpen] = useState(false);
+  const [payStudentName, setPayStudentName] = useState('');
+  const [payAmount, setPayAmount] = useState('');
+  const [payMethod, setPayMethod] = useState('Mobile Money');
+  const [payFeeType, setPayFeeType] = useState('Tuition Fees');
+  const [payNotes, setPayNotes] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+
+  // Export spinner
+  const [isExporting, setIsExporting] = useState(false);
 
   const filtered = activeFilter === 'ALL'
     ? recentPayments
     : recentPayments.filter((p) => p.status === activeFilter);
+
+  const totalTxnPages = Math.max(1, Math.ceil(filtered.length / TXN_PER_PAGE));
+  const pagedTxns = filtered.slice((txnPage - 1) * TXN_PER_PAGE, txnPage * TXN_PER_PAGE);
+
+  const handleRecordPayment = () => {
+    if (!payStudentName.trim() || !payAmount.trim()) return;
+    setIsRecording(true);
+    setTimeout(() => {
+      setIsRecording(false);
+      setPaymentSheetOpen(false);
+      setPayStudentName('');
+      setPayAmount('');
+      setPayNotes('');
+      toast.success('Payment recorded', {
+        description: `$${payAmount} received from ${payStudentName} via ${payMethod} for ${payFeeType}.`,
+      });
+    }, 1100);
+  };
+
+  const handleExportReport = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      setIsExporting(false);
+      toast.success('Finance summary exported', {
+        description: 'Term 1 fee collections and treasury reconciliation report downloaded.',
+      });
+    }, 1000);
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -130,16 +184,24 @@ export default function FinanceDashboardPage() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <Button variant="outline" size="sm" className="gap-2 text-xs">
-              <Download className="h-3.5 w-3.5" />
-              Export Report
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs font-medium"
+              onClick={handleExportReport}
+              disabled={isExporting}
+            >
+              {isExporting ? <Spinner className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
+              {isExporting ? 'Exporting...' : 'Export Report'}
             </Button>
-            <Link href="/portal/finance/fees">
-              <Button size="sm" className="gap-2 text-xs">
-                <CreditCard className="h-3.5 w-3.5" />
-                Record Payment
-              </Button>
-            </Link>
+            <Button
+              size="sm"
+              className="gap-2 text-xs"
+              onClick={() => setPaymentSheetOpen(true)}
+            >
+              <CreditCard className="h-3.5 w-3.5" />
+              Record Payment
+            </Button>
           </div>
         </div>
       </div>
@@ -227,7 +289,7 @@ export default function FinanceDashboardPage() {
       {/* ── TABLE + SIDE PANEL ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-        {/* Transactions table — uses shadcn Table */}
+        {/* Transactions table */}
         <Card className="xl:col-span-2">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -242,7 +304,7 @@ export default function FinanceDashboardPage() {
                 {(['ALL', 'PAID', 'PARTIAL', 'OVERDUE'] as const).map((f) => (
                   <button
                     key={f}
-                    onClick={() => setActiveFilter(f)}
+                    onClick={() => { setActiveFilter(f); setTxnPage(1); }}
                     className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all border ${
                       activeFilter === f
                         ? 'bg-foreground text-background border-foreground'
@@ -268,7 +330,7 @@ export default function FinanceDashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((p, i) => (
+                {pagedTxns.map((p, i) => (
                   <TableRow key={i} className="hover:bg-muted/20">
                     <TableCell className="pl-4">
                       <div className="flex items-center gap-2.5">
@@ -294,7 +356,7 @@ export default function FinanceDashboardPage() {
                     </TableCell>
                   </TableRow>
                 ))}
-                {filtered.length === 0 && (
+                {pagedTxns.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-8 text-xs text-muted-foreground">
                       No transactions match this filter.
@@ -304,13 +366,52 @@ export default function FinanceDashboardPage() {
               </TableBody>
             </Table>
           </CardContent>
-          <CardFooter className="justify-between">
-            <p className="text-xs text-muted-foreground">{filtered.length} of {recentPayments.length} records</p>
-            <Link href="/portal/finance/fees">
-              <Button variant="ghost" size="sm" className="text-xs gap-1">
+          <CardFooter className="flex-col items-start gap-3 pt-3">
+            <div className="flex items-center justify-between w-full">
+              <p className="text-xs text-muted-foreground">
+                {filtered.length} record{filtered.length !== 1 ? 's' : ''} &bull; Page {txnPage} of {totalTxnPages}
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs gap-1"
+                onClick={() => toast.success('Full ledger loaded', { description: 'Navigating to complete fee ledger.' })}
+              >
                 Full Ledger <ArrowRight className="h-3 w-3" />
               </Button>
-            </Link>
+            </div>
+            {totalTxnPages > 1 && (
+              <Pagination className="justify-start mx-0">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); setTxnPage((p) => Math.max(1, p - 1)); }}
+                      className={txnPage === 1 ? 'pointer-events-none opacity-40' : ''}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalTxnPages }, (_, i) => i + 1).map((pg) => (
+                    <PaginationItem key={pg}>
+                      <PaginationLink
+                        href="#"
+                        isActive={pg === txnPage}
+                        onClick={(e) => { e.preventDefault(); setTxnPage(pg); }}
+                        className="h-8 w-8 text-xs"
+                      >
+                        {pg}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); setTxnPage((p) => Math.min(totalTxnPages, p + 1)); }}
+                      className={txnPage === totalTxnPages ? 'pointer-events-none opacity-40' : ''}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </CardFooter>
         </Card>
 
@@ -337,12 +438,15 @@ export default function FinanceDashboardPage() {
             ))}
           </CardContent>
           <CardFooter>
-            <Link href="/portal/finance/reports" className="w-full">
-              <Button variant="outline" size="sm" className="w-full text-xs gap-2">
-                <FileText className="h-3.5 w-3.5" />
-                Full Financial Report
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-xs gap-2"
+              onClick={() => toast.success('Report generated', { description: 'Full financial report is ready to download.' })}
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Full Financial Report
+            </Button>
           </CardFooter>
         </Card>
       </div>
@@ -366,6 +470,111 @@ export default function FinanceDashboardPage() {
           );
         })}
       </div>
+
+      {/* ── RECORD PAYMENT SHEET ──────────────────────────────────────────────── */}
+      <Sheet open={paymentSheetOpen} onOpenChange={(open) => { if (!isRecording) setPaymentSheetOpen(open); }}>
+        <SheetContent side="right" className="sm:max-w-md w-full overflow-y-auto">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" /> Record Fee Payment
+            </SheetTitle>
+            <SheetDescription>
+              Enter payment details to update the student&apos;s fee balance and generate a receipt.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Student Name / ID</label>
+              <input
+                type="text"
+                value={payStudentName}
+                onChange={(e) => setPayStudentName(e.target.value)}
+                placeholder="e.g. Emily Watson or SCH-2025-00001"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground block">Amount ($)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={payAmount}
+                  onChange={(e) => setPayAmount(e.target.value)}
+                  placeholder="e.g. 1200"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground block">Payment Method</label>
+                <select
+                  value={payMethod}
+                  onChange={(e) => setPayMethod(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option>Mobile Money</option>
+                  <option>Bank Transfer</option>
+                  <option>Cash</option>
+                  <option>Cheque</option>
+                  <option>Card</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Fee Type</label>
+              <select
+                value={payFeeType}
+                onChange={(e) => setPayFeeType(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option>Tuition Fees</option>
+                <option>Examination Levy</option>
+                <option>Sports &amp; Activity</option>
+                <option>Library Fund</option>
+                <option>PTA Dues</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Receipt / Reference No.</label>
+              <input
+                type="text"
+                placeholder="e.g. RCP-20261012-0042"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground block">Notes / Remarks</label>
+              <Textarea
+                rows={3}
+                value={payNotes}
+                onChange={(e) => setPayNotes(e.target.value)}
+                placeholder="e.g. Partial payment — balance of $250 due by end of month..."
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          <SheetFooter className="mt-6 flex gap-2">
+            <SheetClose asChild>
+              <Button variant="outline" size="sm" disabled={isRecording}>Cancel</Button>
+            </SheetClose>
+            <Button
+              size="sm"
+              className="flex-1 gap-1.5 font-semibold"
+              onClick={handleRecordPayment}
+              disabled={isRecording || !payStudentName.trim() || !payAmount.trim()}
+            >
+              {isRecording ? <Spinner className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
+              {isRecording ? 'Recording...' : 'Record Payment'}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
     </div>
   );

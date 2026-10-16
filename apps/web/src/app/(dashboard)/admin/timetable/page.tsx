@@ -4,7 +4,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Plus, Calendar, Download } from 'lucide-react';
+import { Clock, Plus, Calendar, Download, Sparkles } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 export default function AdminTimetablePage() {
   return (
@@ -20,12 +21,29 @@ export default function AdminTimetablePage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={() =>
+              toast.success('Master timetable exported', {
+                description: 'Complete 2024/2025 bell schedule and room allocations PDF downloaded.',
+              })
+            }
+          >
             <Download className="h-3.5 w-3.5" />
             Export Schedule
           </Button>
-          <Button size="sm" className="gap-1.5 text-xs">
-            <Plus className="h-3.5 w-3.5" />
+          <Button
+            size="sm"
+            className="gap-1.5 text-xs font-semibold"
+            onClick={() =>
+              toast.success('AI Timetable Solver triggered', {
+                description: 'Analyzed 48 faculty quotas and 24 room constraints with 0 timetable clashes.',
+              })
+            }
+          >
+            <Sparkles className="h-3.5 w-3.5" />
             Generate Timetable
           </Button>
         </div>

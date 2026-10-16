@@ -23,6 +23,7 @@ import {
   Smartphone,
   School,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 export default function TeacherSettingsPage() {
   const [activeTab, setActiveTab] = useState<'profile' | 'teaching' | 'preferences' | 'notifications' | 'security'>('profile');
@@ -41,9 +42,12 @@ export default function TeacherSettingsPage() {
     bio: 'Dedicated educator specializing in pure mathematics, calculus, and mathematical modeling with 9+ years of secondary school experience.',
   });
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setSavedSuccess(true);
+    toast.success('Teacher profile updated', {
+      description: 'Your changes and preferences have been successfully saved.',
+    });
     setTimeout(() => setSavedSuccess(false), 3000);
   };
 

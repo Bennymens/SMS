@@ -10,6 +10,7 @@ import {
   DollarSign, TrendingUp, Users, Calendar, Download, Filter,
   PieChart as PieChartIcon, Smartphone, CreditCard, Building2, CheckCircle2,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 import {
   ChartContainer,
   ChartTooltip,
@@ -96,13 +97,27 @@ export default function FinancialAnalyticsPage() {
                 size="sm"
                 variant={term === t ? 'default' : 'ghost'}
                 className="h-7 text-xs px-2.5"
-                onClick={() => setTerm(t)}
+                onClick={() => {
+                  setTerm(t);
+                  toast.info('Term range updated', {
+                    description: `Displaying collection metrics for ${t}.`,
+                  });
+                }}
               >
                 {t}
               </Button>
             ))}
           </div>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs font-medium"
+            onClick={() =>
+              toast.success('Financial analytics exported', {
+                description: 'Payment velocity and collection efficiency metrics downloaded.',
+              })
+            }
+          >
             <Download className="w-3.5 h-3.5" /> Export Analytics
           </Button>
         </div>

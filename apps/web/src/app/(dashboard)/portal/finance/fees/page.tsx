@@ -14,6 +14,7 @@ import {
   CreditCard, Download, Search, Plus, Filter, CheckCircle2,
   AlertCircle, Clock, ArrowRight,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 const payments = [
   { name: 'Emily Watson',       id: 'SCH-2025-00001', grade: 'Grade 10-A', term: 'Term 1', amount: '$1,200', balance: '$0',    date: 'Oct 12, 2026', method: 'Mobile Money', status: 'PAID'    },
@@ -58,10 +59,19 @@ export default function FeeCollectionPage() {
           <p className="text-xs text-muted-foreground mt-0.5">Term 1 · 2024/2025 Academic Year · Oakridge Academy</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-2 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 text-xs"
+            onClick={() => toast.success('Fee ledger exported', { description: 'CSV fee report has been downloaded.' })}
+          >
             <Download className="h-3.5 w-3.5" />Export
           </Button>
-          <Button size="sm" className="gap-2 text-xs">
+          <Button
+            size="sm"
+            className="gap-2 text-xs"
+            onClick={() => toast.info('Record payment selected', { description: 'Opening payment receipt modal...' })}
+          >
             <Plus className="h-3.5 w-3.5" />Record Payment
           </Button>
         </div>

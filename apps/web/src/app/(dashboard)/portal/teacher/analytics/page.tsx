@@ -22,7 +22,9 @@ import {
   CartesianGrid,
   Line,
 } from 'recharts';
-import { TrendingUp, Target, GraduationCap, Sparkles, BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/toast';
+import { TrendingUp, Target, GraduationCap, Sparkles, BookOpen, Download } from 'lucide-react';
 
 const teachingClasses = [
   { id: 'cls-10a', name: 'SHS 1 - Science A',      subject: 'Core Mathematics'        },
@@ -236,14 +238,29 @@ export default function TeacherAnalyticsPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-          <TrendingUp className="h-5 w-5" />
-          Student Analytics
-        </h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Select a class and student to view term assessment trends and GES NaCCA competency data.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Student Analytics
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Select a class and student to view term assessment trends and GES NaCCA competency data.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 text-xs font-medium"
+          onClick={() =>
+            toast.success('Analytics report exported', {
+              description: `Generated performance dossier for ${student?.name || 'Class cohort'}.`,
+            })
+          }
+        >
+          <Download className="h-3.5 w-3.5" />
+          Export Dossier (PDF)
+        </Button>
       </div>
 
       {/* Selectors row */}

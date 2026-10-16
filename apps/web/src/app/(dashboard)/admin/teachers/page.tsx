@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { UserCheck, Mail, Phone, BookOpen, Plus, Search } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 const staffList = [
   { name: 'Dr. Arthur Thorne', role: 'Head of Mathematics', email: 'a.thorne@oakridge.edu', phone: '+1 (555) 301-4412', subjects: 'Adv Math, Calculus', classes: 'Grade 10A, 11B', status: 'Active' },
@@ -29,7 +30,11 @@ export default function AdminTeachersPage() {
             Manage academic personnel, subject allocations, and departmental assignments.
           </p>
         </div>
-        <Button size="sm" className="gap-1.5 text-xs">
+        <Button
+          size="sm"
+          className="gap-1.5 text-xs"
+          onClick={() => toast.info('Faculty enrollment form', { description: 'Opening staff registration modal...' })}
+        >
           <Plus className="h-3.5 w-3.5" />
           Add Faculty Member
         </Button>

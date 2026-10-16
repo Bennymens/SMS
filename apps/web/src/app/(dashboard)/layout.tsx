@@ -1,11 +1,19 @@
-import React from "react"
-import Link from "next/link"
-import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { Button } from "@/components/ui/button"
-import { LogOut } from "lucide-react"
+import React from "react";
+import Link from "next/link";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -32,5 +40,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

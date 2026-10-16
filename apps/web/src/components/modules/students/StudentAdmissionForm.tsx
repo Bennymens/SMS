@@ -11,6 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/toast';
 import {
   User,
   GraduationCap,
@@ -89,6 +90,9 @@ export const StudentAdmissionForm: React.FC<StudentAdmissionFormProps> = ({
       }
 
       const result = await response.json();
+      toast.success('Student admitted successfully', {
+        description: `${values.firstName} ${values.lastName} has been enrolled.`,
+      });
       if (onSubmitSuccess) {
         onSubmitSuccess(result.id);
       } else {
@@ -96,6 +100,9 @@ export const StudentAdmissionForm: React.FC<StudentAdmissionFormProps> = ({
       }
     } catch (err: any) {
       setErrorBanner(err.message || 'An error occurred during submission.');
+      toast.error('Admission failed', {
+        description: err.message || 'An error occurred during submission.',
+      });
     } finally {
       setIsSubmitting(false);
     }

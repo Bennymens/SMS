@@ -13,6 +13,7 @@ import {
   DollarSign, Download, Plus, Search, Building2, TrendingDown,
   PieChart, AlertTriangle, CheckCircle2, ChevronRight, FileSpreadsheet,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 interface BudgetItem {
   code: string;
@@ -77,10 +78,27 @@ export default function BudgetExpenditurePage() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs font-medium"
+            onClick={() =>
+              toast.success('Budget ledger exported', {
+                description: 'Departmental expenditure and PO commitments CSV downloaded.',
+              })
+            }
+          >
             <FileSpreadsheet className="w-3.5 h-3.5" /> Export Ledger
           </Button>
-          <Button size="sm" className="gap-1.5 text-xs">
+          <Button
+            size="sm"
+            className="gap-1.5 text-xs font-semibold"
+            onClick={() =>
+              toast.info('New budget allocation', {
+                description: 'Opening department cost center allocation form...',
+              })
+            }
+          >
             <Plus className="w-3.5 h-3.5" /> New Allocation
           </Button>
         </div>

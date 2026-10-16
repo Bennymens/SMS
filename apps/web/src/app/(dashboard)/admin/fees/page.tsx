@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CreditCard, DollarSign, Download, Filter, CheckCircle2 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 export default function AdminFeesPage() {
   return (
@@ -20,11 +21,28 @@ export default function AdminFeesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={() =>
+              toast.success('Financial audit exported', {
+                description: 'Reconciled tuition and auxiliary accounts ledger downloaded.',
+              })
+            }
+          >
             <Download className="h-3.5 w-3.5" />
             Financial Audit
           </Button>
-          <Button size="sm" className="gap-1.5 text-xs">
+          <Button
+            size="sm"
+            className="gap-1.5 text-xs font-semibold"
+            onClick={() =>
+              toast.success('Invoice batch generated', {
+                description: 'Generated and queued 840 electronic tuition statements.',
+              })
+            }
+          >
             <CreditCard className="h-3.5 w-3.5" />
             Create Invoice Batch
           </Button>

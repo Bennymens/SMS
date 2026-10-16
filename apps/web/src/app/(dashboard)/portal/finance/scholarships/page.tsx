@@ -14,6 +14,7 @@ import {
   Trophy, Search, Plus, Download, Award, Users, DollarSign,
   CheckCircle2, Clock, Filter, Sparkles, FileText,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 interface Scholarship {
   id: string;
@@ -78,10 +79,27 @@ export default function ScholarshipsPage() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs font-medium"
+            onClick={() =>
+              toast.success('Beneficiaries exported', {
+                description: 'Full scholarship recipient roll and sponsorship ledger downloaded.',
+              })
+            }
+          >
             <Download className="w-3.5 h-3.5" /> Export Beneficiaries
           </Button>
-          <Button size="sm" className="gap-1.5 text-xs">
+          <Button
+            size="sm"
+            className="gap-1.5 text-xs font-semibold"
+            onClick={() =>
+              toast.info('Award Scholarship', {
+                description: 'Opening student financial aid and discount allocation form...',
+              })
+            }
+          >
             <Plus className="w-3.5 h-3.5" /> Award Scholarship
           </Button>
         </div>

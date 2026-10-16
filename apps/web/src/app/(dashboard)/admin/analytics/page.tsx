@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart3, TrendingUp, Users, DollarSign, Download, Filter } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 export default function AdminAnalyticsPage() {
   return (
@@ -20,7 +21,16 @@ export default function AdminAnalyticsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs font-medium"
+            onClick={() =>
+              toast.success('Institutional metrics exported', {
+                description: 'Executive enrollment, retention, and finance summary downloaded.',
+              })
+            }
+          >
             <Download className="h-3.5 w-3.5" />
             Export Metrics
           </Button>

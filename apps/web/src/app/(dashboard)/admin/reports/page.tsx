@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FileText, Download, Calendar, BarChart3 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 const reports = [
   { name: 'Annual Academic Performance Audit', type: 'Academic', date: 'Oct 01, 2026', size: '4.2 MB' },
@@ -26,7 +27,11 @@ export default function AdminReportsPage() {
             Generate state compliance records, gradebook audits, and administrative summaries.
           </p>
         </div>
-        <Button size="sm" className="gap-1.5 text-xs">
+        <Button
+          size="sm"
+          className="gap-1.5 text-xs"
+          onClick={() => toast.success('Report generation started', { description: 'Compiling latest metrics and data.' })}
+        >
           <BarChart3 className="h-3.5 w-3.5" />
           Generate New Report
         </Button>
@@ -41,7 +46,12 @@ export default function AdminReportsPage() {
                   <CardTitle className="text-sm font-semibold">{r.name}</CardTitle>
                   <CardDescription className="text-xs mt-0.5">{r.type} Report • {r.date}</CardDescription>
                 </div>
-                <Button variant="outline" size="sm" className="gap-1 text-xs">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-xs"
+                  onClick={() => toast.info(`Downloading ${r.name}`, { description: `File size: ${r.size}` })}
+                >
                   <Download className="h-3 w-3" />
                   PDF ({r.size})
                 </Button>

@@ -28,6 +28,7 @@ import {
   FileText,
   AlertCircle,
 } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
 
 type Submission = {
   id: string;
@@ -237,6 +238,9 @@ export default function TeacherAssignmentsPage() {
 
   const handleSaveGrading = () => {
     setGradeSuccessMessage(true);
+    toast.success('Assignment grades saved', {
+      description: 'Scores and feedback successfully updated.',
+    });
     setTimeout(() => setGradeSuccessMessage(false), 3500);
   };
 
@@ -260,6 +264,9 @@ export default function TeacherAssignmentsPage() {
     setAssignments((prev) => [created, ...prev]);
     setShowCreateModal(false);
     setNewTitle('');
+    toast.success(`Assignment published`, {
+      description: `"${created.title}" assigned to ${created.classCohort}.`,
+    });
   };
 
   return (
