@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { FileText, Calendar, Clock, Plus, Upload, CheckCircle2, ShieldCheck, Download } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
@@ -164,20 +164,20 @@ export default function TeacherExamsPage() {
         ))}
       </div>
 
-      {/* Submit Question Paper Modal */}
-      <Dialog open={openSubmitModal} onOpenChange={setOpenSubmitModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* Submit Question Paper Sheet */}
+      <Sheet open={openSubmitModal} onOpenChange={setOpenSubmitModal}>
+        <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5 text-primary" />
               Submit Examination Question Paper
-            </DialogTitle>
-            <DialogDescription className="text-xs">
+            </SheetTitle>
+            <SheetDescription className="text-xs">
               Upload digitized question papers, answer keys, and marking guidelines for dean moderation.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
-          <form onSubmit={handleSubmitPaper} className="space-y-4 pt-2">
+          <form onSubmit={handleSubmitPaper} className="space-y-4 pt-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Exam Paper Title</label>
               <Input
@@ -246,7 +246,7 @@ export default function TeacherExamsPage() {
               </div>
             </div>
 
-            <DialogFooter>
+            <SheetFooter className="pt-4">
               <Button type="button" variant="outline" size="sm" onClick={() => setOpenSubmitModal(false)}>
                 Cancel
               </Button>
@@ -254,10 +254,10 @@ export default function TeacherExamsPage() {
                 <CheckCircle2 className="h-4 w-4" />
                 Submit to Exam Board
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -38,7 +38,9 @@ export default function LandingPage() {
   const [campusTab, setCampusTab] = useState<'single' | 'multi'>('single');
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('growth');
   const [activeTab, setActiveTab] = useState<ActiveTab>('admin');
+  const [phoneView, setPhoneView] = useState<'attendance' | 'menu'>('attendance');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
 
   const handlePrev = () => {
     setActiveTab((prev) => {
@@ -132,16 +134,17 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col bg-white text-[#1a1a2e] selection:bg-violet-200">
 
       {/* ── NAVBAR (unchanged per user instruction) ─────────────────────── */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/90 backdrop-blur-md">
+      {/* ── NAVBAR (orange theme per user instruction) ───────────────────── */}
+      <header className="sticky top-0 z-50 w-full bg-[#FA672D] text-[#140803] border-b border-[#140803]/10 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           {/* Logo pushed far left */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-auto">
-            <div className="h-9 w-9 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-sm">
+            <div className="h-9 w-9 rounded-xl bg-[#140803] flex items-center justify-center text-white shadow-sm">
               <GraduationCap className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-base tracking-tight leading-none text-[#1a1a2e]">EduManage</span>
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">School OS</span>
+              <span className="font-extrabold text-base tracking-tight leading-none text-[#140803]">EduManage</span>
+              <span className="text-[10px] text-[#140803]/75 uppercase tracking-wider font-bold">School OS</span>
             </div>
           </Link>
 
@@ -150,7 +153,7 @@ export default function LandingPage() {
             <NavigationMenu>
               <NavigationMenuList className="gap-1">
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-xs font-medium text-gray-700">
+                  <NavigationMenuTrigger className="text-xs font-bold text-[#140803] bg-transparent hover:bg-[#140803]/10 data-[state=open]:bg-[#140803]/15">
                     Platform Modules
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="p-4 w-[380px] bg-white border rounded-xl shadow-xl">
@@ -175,7 +178,7 @@ export default function LandingPage() {
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-xs font-medium text-gray-700">
+                  <NavigationMenuTrigger className="text-xs font-bold text-[#140803] bg-transparent hover:bg-[#140803]/10 data-[state=open]:bg-[#140803]/15">
                     Subscriptions
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="p-4 w-[320px] bg-white border rounded-xl shadow-xl">
@@ -203,7 +206,7 @@ export default function LandingPage() {
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <NavigationMenuLink href="#faq" className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                  <NavigationMenuLink href="#faq" className="px-3 py-1.5 text-xs font-bold text-[#140803] hover:bg-[#140803]/10 rounded-md transition-colors">
                     FAQ
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -214,12 +217,12 @@ export default function LandingPage() {
           {/* Sign In / Sign Up */}
           <div className="flex items-center gap-2">
             <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-xs font-medium text-gray-700">
+              <Button variant="ghost" size="sm" className="text-xs font-bold text-[#140803] hover:bg-[#140803]/10 hover:text-black">
                 Sign In
               </Button>
             </Link>
             <Link href="/login">
-              <Button size="sm" className="text-xs font-semibold gap-1.5 bg-violet-600 hover:bg-violet-700 text-white shadow-sm">
+              <Button size="sm" className="text-xs font-bold gap-1.5 bg-[#140803] hover:bg-[#261005] text-white shadow-md rounded-full px-4">
                 Get Started <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>
@@ -227,32 +230,140 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* ── HERO — deep violet gradient like Hostinger ───────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#3b0d8f] via-[#5c1adb] to-[#7c3aed] text-white pt-20 pb-20 sm:pt-28 sm:pb-28">
-        {/* subtle grid overlay */}
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+      {/* ── HERO — Umano-Inspired Full-Width with Curved Bottom ───────────────── */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#FA672D] via-[#FA672D] to-[#F1551A] text-[#140803] pt-14 sm:pt-20 pb-0 rounded-b-[40px] sm:rounded-b-[56px] lg:rounded-b-[64px] shadow-[0_25px_60px_-15px_rgba(250,103,45,0.35)] w-full">
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6">
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
-            Your school, online.<br />Managed easy.
-          </h1>
-          <p className="text-base sm:text-xl text-violet-200 max-w-xl mx-auto">
-            An all-in-one platform for school fees, academic records, and administration—built for basic schools in Africa.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Link href="/login">
-              <Button size="lg" className="h-12 px-8 text-sm font-semibold bg-white text-violet-700 hover:bg-violet-50 shadow-lg border-0">
-                Get started
-              </Button>
-            </Link>
+          {/* Subtle decorative background textures */}
+          <div
+            className="absolute inset-0 opacity-10 pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.2) 1px, transparent 0)',
+              backgroundSize: '32px 32px',
+            }}
+          />
+
+          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6">
+            {/* Main punchy editorial headline */}
+            <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-[#140803] leading-[1.04]">
+              Pause paperwork,<br />
+              Start managing.
+            </h1>
+
+            {/* Subheading */}
+            <p className="text-base sm:text-lg md:text-xl text-[#261005]/90 max-w-2xl mx-auto font-medium leading-relaxed">
+              We streamline your school fees, student attendance, terminal report cards, and admissions without limits, for a simple fixed price.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <Link href="/login">
+                <Button size="lg" className="h-12 px-8 text-sm font-bold bg-[#140803] hover:bg-[#261005] text-white shadow-xl rounded-full transition-all hover:scale-105">
+                  Start Free Pilot <ArrowRight className="w-4 h-4 ml-1.5" />
+                </Button>
+              </Link>
+              <Link href="#modules">
+                <Button size="lg" variant="outline" className="h-12 px-6 text-sm font-semibold bg-white/20 hover:bg-white/30 text-[#140803] border-[#140803]/20 backdrop-blur-md rounded-full transition-all">
+                  Explore Platform
+                </Button>
+              </Link>
+            </div>
+
+            {/* Interactive Phone Screen Switcher */}
+            <div className="pt-2 flex items-center justify-center">
+              <div className="inline-flex items-center gap-1.5 p-1 rounded-full bg-[#140803]/10 backdrop-blur-md border border-[#140803]/10">
+                <button
+                  type="button"
+                  onClick={() => setPhoneView('attendance')}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    phoneView === 'attendance'
+                      ? 'bg-[#140803] text-white shadow-md'
+                      : 'text-[#140803] hover:text-black'
+                  }`}
+                >
+                  📱 Live Attendance Roll-Call
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPhoneView('menu')}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    phoneView === 'menu'
+                      ? 'bg-[#140803] text-white shadow-md'
+                      : 'text-[#140803] hover:text-black'
+                  }`}
+                >
+                  🧭 School OS Menu
+                </button>
+              </div>
+            </div>
+
+            {/* Centered Phone Showcase with Slowly Floating Animated Cards */}
+            <div className="relative mx-auto pt-6 flex flex-col items-center">
+              {/* Card 1: Top Floating Notification Badge (Animated, moving slowly) */}
+              <div className="absolute top-2 z-20 bg-white/95 backdrop-blur-md border border-amber-100/90 shadow-[0_12px_30px_-5px_rgba(0,0,0,0.18)] rounded-2xl px-4 py-2.5 flex items-center gap-3 whitespace-nowrap animate-float-1">
+                <div className="w-8 h-8 rounded-xl bg-[#FA672D] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                  <Check className="w-4 h-4 stroke-[3]" />
+                </div>
+                <div className="text-left">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Class 4B • Teacher Portal</p>
+                  <p className="text-xs font-bold text-gray-900 leading-tight">
+                    Attendance Roll-Call Confirmed
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2: Left Floating Feature Badge (Animated, moving slowly) */}
+              <div className="hidden lg:flex absolute -left-20 xl:-left-32 top-1/3 z-20 bg-white/95 backdrop-blur-md border border-white/60 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.15)] rounded-2xl p-3.5 items-center gap-3 w-56 text-left animate-float-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#FA672D] flex items-center justify-center shrink-0">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900">MoMo Reconciliation</p>
+                  <p className="text-[10px] text-gray-500 font-medium">Auto-instant receipts sent</p>
+                </div>
+              </div>
+
+              {/* Card 3: Right Floating Feature Badge (Animated, moving slowly) */}
+              <div className="hidden lg:flex absolute -right-20 xl:-right-32 top-1/4 z-20 bg-white/95 backdrop-blur-md border border-white/60 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.15)] rounded-2xl p-3.5 items-center gap-3 w-56 text-left animate-float-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900">100% Mobile Ready</p>
+                  <p className="text-[10px] text-gray-500 font-medium">Bursars, Teachers & Admin</p>
+                </div>
+              </div>
+
+              {/* Phone Image mockup rising from bottom */}
+              <div className="relative w-[280px] sm:w-[320px] md:w-[360px] pt-10 select-none overflow-hidden">
+                <Image
+                  src={phoneView === 'attendance' ? '/img/phone-dash-transparent.png' : '/img/phone-menu-transparent.png'}
+                  alt="EduManage Mobile Dashboard"
+                  width={400}
+                  height={756}
+                  priority
+                  className="w-full h-auto drop-shadow-[0_25px_45px_rgba(20,8,3,0.5)] transition-all duration-300 transform hover:scale-[1.01]"
+                />
+              </div>
+            </div>
           </div>
-          <p className="text-xs text-violet-300 flex items-center justify-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            30-day money-back guarantee
-          </p>
+        </section>
+
+
+
+      {/* ── TRUSTED SCHOOLS STRIP (matching Umano logo banner) ── */}
+      <section className="py-12 bg-white text-center border-b border-gray-100">
+        <p className="text-[11px] uppercase tracking-widest text-gray-400 font-bold mb-6">
+          Trusted by leading basic schools, academies & pre-tertiary institutions
+        </p>
+        <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-70">
+          <span className="font-extrabold text-xs sm:text-sm tracking-wider text-gray-700">ST. AUGUSTINE PREP</span>
+          <span className="font-extrabold text-xs sm:text-sm tracking-wider text-gray-700">BEACON HILL ACADEMY</span>
+          <span className="font-extrabold text-xs sm:text-sm tracking-wider text-gray-700">ROYAL CREST INT.</span>
+          <span className="font-extrabold text-xs sm:text-sm tracking-wider text-gray-700">CHRIST THE KING SCH.</span>
+          <span className="font-extrabold text-xs sm:text-sm tracking-wider text-gray-700">MORNING STAR ACADEMY</span>
         </div>
       </section>
+
 
       {/* ── MODULE SHOWCASE — 3-Card Stack & Auto-rotation like Hostinger ── */}
       <section id="modules" className="py-20 sm:py-24 bg-white max-w-7xl mx-auto px-4 sm:px-6 w-full space-y-12">

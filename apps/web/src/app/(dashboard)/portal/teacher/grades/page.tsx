@@ -14,14 +14,15 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+  SheetClose,
+} from '@/components/ui/sheet';
+
 import {
   ClipboardList,
   Download,
@@ -348,131 +349,133 @@ export default function TeacherGradesPage() {
         </CardContent>
       </Card>
 
-      {/* MODAL POPUP FOR ENTERING STUDENT GRADES */}
-      <Dialog open={!!editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)}>
+      {/* SHEET DRAWER FOR ENTERING & EDITING STUDENT GRADES */}
+      <Sheet open={!!editingStudent} onOpenChange={(open) => !open && setEditingStudent(null)}>
         {editingStudent && (
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <div className="flex items-center gap-3 mb-1">
-                <Avatar className="h-10 w-10 rounded-lg border border-border">
-                  <AvatarFallback className="rounded-lg bg-muted text-foreground font-bold text-xs">
-                    {editingStudent.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <DialogTitle>{editingStudent.name}</DialogTitle>
-                  <DialogDescription>
-                    ID: <span className="font-mono">{editingStudent.id}</span> • {activeCohort.className}
-                  </DialogDescription>
+          <SheetContent side="right" className="sm:max-w-md w-full overflow-y-auto flex flex-col justify-between">
+            <div>
+              <SheetHeader className="pb-4 border-b">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10 rounded-lg border border-border">
+                    <AvatarFallback className="rounded-lg bg-muted text-foreground font-bold text-xs">
+                      {editingStudent.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <SheetTitle className="text-base font-bold">{editingStudent.name}</SheetTitle>
+                    <SheetDescription className="text-xs">
+                      ID: <span className="font-mono text-foreground font-semibold">{editingStudent.id}</span> • {activeCohort.className}
+                    </SheetDescription>
+                  </div>
                 </div>
-              </div>
-            </DialogHeader>
+              </SheetHeader>
 
-            <div className="space-y-4 py-2">
-              {/* Score Inputs: Class Score, Midterm Test Score, Final Exam Score */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-4 py-4">
+                {/* Score Inputs: Class Score, Midterm Test Score, Final Exam Score */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground block">
+                      Class Score
+                      <span className="text-[10px] text-muted-foreground block font-normal">(Max 30)</span>
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={30}
+                      value={modalClassScore}
+                      onChange={(e) => setModalClassScore(Number(e.target.value))}
+                      className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground block">
+                      Midterm Score
+                      <span className="text-[10px] text-muted-foreground block font-normal">(Max 30)</span>
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={30}
+                      value={modalMidtermScore}
+                      onChange={(e) => setModalMidtermScore(Number(e.target.value))}
+                      className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground block">
+                      Final Exam
+                      <span className="text-[10px] text-muted-foreground block font-normal">(Max 40)</span>
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={40}
+                      value={modalFinalExamScore}
+                      onChange={(e) => setModalFinalExamScore(Number(e.target.value))}
+                      className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+
+                {/* Dynamic Calculation Summary */}
+                <div className="p-3 rounded-lg border bg-muted/40 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Total Computed Score</span>
+                    <span className="text-lg font-bold text-foreground">{modalTotal}%</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">Final Rating</span>
+                    <Badge variant="outline" className="font-bold text-xs mt-0.5">
+                      {modalGrade.letter} • {modalGrade.label}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Remarks */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-foreground block">
-                    Class Score
-                    <span className="text-[10px] text-muted-foreground block font-normal">(Max 30)</span>
+                    Teacher Remarks & Feedback
                   </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={30}
-                    value={modalClassScore}
-                    onChange={(e) => setModalClassScore(Number(e.target.value))}
-                    className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  <textarea
+                    rows={3}
+                    value={modalRemarks}
+                    onChange={(e) => setModalRemarks(e.target.value)}
+                    placeholder="Enter observation or feedback..."
+                    className="w-full rounded-md border border-input bg-background p-2.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
                   />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground block">
-                    Midterm Score
-                    <span className="text-[10px] text-muted-foreground block font-normal">(Max 30)</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={30}
-                    value={modalMidtermScore}
-                    onChange={(e) => setModalMidtermScore(Number(e.target.value))}
-                    className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground block">
-                    Final Exam
-                    <span className="text-[10px] text-muted-foreground block font-normal">(Max 40)</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={40}
-                    value={modalFinalExamScore}
-                    onChange={(e) => setModalFinalExamScore(Number(e.target.value))}
-                    className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-center text-sm font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                  />
-                </div>
-              </div>
-
-              {/* Dynamic Calculation Summary */}
-              <div className="p-3 rounded-lg border bg-muted/40 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground block">Total Computed Score</span>
-                  <span className="text-lg font-bold text-foreground">{modalTotal}%</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground block">Final Rating</span>
-                  <Badge variant="outline" className="font-bold text-xs mt-0.5">
-                    {modalGrade.letter} • {modalGrade.label}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Remarks */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-foreground block">
-                  Teacher Remarks & Feedback
-                </label>
-                <textarea
-                  rows={2}
-                  value={modalRemarks}
-                  onChange={(e) => setModalRemarks(e.target.value)}
-                  placeholder="Enter observation or feedback..."
-                  className="w-full rounded-md border border-input bg-background p-2.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-                />
-                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground flex-wrap">
-                  <span>Quick insert:</span>
-                  <button
-                    type="button"
-                    onClick={() => setModalRemarks('Superb grasp of core syllabus topics.')}
-                    className="hover:text-foreground underline cursor-pointer"
-                  >
-                    + Superb
-                  </button>
-                  <span>•</span>
-                  <button
-                    type="button"
-                    onClick={() => setModalRemarks('Consistent effort throughout all continuous assessments.')}
-                    className="hover:text-foreground underline cursor-pointer"
-                  >
-                    + Consistent
-                  </button>
-                  <span>•</span>
-                  <button
-                    type="button"
-                    onClick={() => setModalRemarks('Encouraged to attend weekly peer tutorial clinics.')}
-                    className="hover:text-foreground underline cursor-pointer"
-                  >
-                    + Tutorial Recommended
-                  </button>
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground flex-wrap">
+                    <span>Quick insert:</span>
+                    <button
+                      type="button"
+                      onClick={() => setModalRemarks('Superb grasp of core syllabus topics.')}
+                      className="hover:text-foreground underline cursor-pointer"
+                    >
+                      + Superb
+                    </button>
+                    <span>•</span>
+                    <button
+                      type="button"
+                      onClick={() => setModalRemarks('Consistent effort throughout all continuous assessments.')}
+                      className="hover:text-foreground underline cursor-pointer"
+                    >
+                      + Consistent
+                    </button>
+                    <span>•</span>
+                    <button
+                      type="button"
+                      onClick={() => setModalRemarks('Encouraged to attend weekly peer tutorial clinics.')}
+                      className="hover:text-foreground underline cursor-pointer"
+                    >
+                      + Tutorial Recommended
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <DialogFooter showCloseButton={false}>
+            <SheetFooter className="pt-4 border-t flex flex-row items-center justify-end gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => setEditingStudent(null)}>
                 Cancel
               </Button>
@@ -480,10 +483,11 @@ export default function TeacherGradesPage() {
                 <Save className="h-3.5 w-3.5" />
                 Save Grade
               </Button>
-            </DialogFooter>
-          </DialogContent>
+            </SheetFooter>
+          </SheetContent>
         )}
-      </Dialog>
+      </Sheet>
+
     </div>
   );
 }
