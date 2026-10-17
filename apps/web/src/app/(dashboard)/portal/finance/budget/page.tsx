@@ -15,6 +15,16 @@ import {
 } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
 
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
+
 interface BudgetItem {
   code: string;
   department: string;
@@ -49,16 +59,31 @@ const statusLabel: Record<string, string> = {
 };
 
 export default function BudgetExpenditurePage() {
+  const [items, setItems] = useState<BudgetItem[]>(budgetItems);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('ALL');
 
-  const totalAllocated = budgetItems.reduce((acc, curr) => acc + curr.allocated, 0);
-  const totalSpent = budgetItems.reduce((acc, curr) => acc + curr.spent, 0);
-  const totalCommitted = budgetItems.reduce((acc, curr) => acc + curr.committed, 0);
+  // Sheet states
+  const [openAllocationSheet, setOpenAllocationSheet] = useState(false);
+  const [openExportSheet, setOpenExportSheet] = useState(false);
+
+  // Allocation form state
+  const [newDept, setNewDept] = useState('Academic & Curriculum');
+  const [newAmount, setNewAmount] = useState('');
+  const [newLead, setNewLead] = useState('');
+  const [newJustification, setNewJustification] = useState('');
+
+  // Export form state
+  const [exportScope, setExportScope] = useState('FY 2026/27 Full Audit');
+  const [exportFormat, setExportFormat] = useState('Excel (.xlsx)');
+
+  const totalAllocated = items.reduce((acc, curr) => acc + curr.allocated, 0);
+  const totalSpent = items.reduce((acc, curr) => acc + curr.spent, 0);
+  const totalCommitted = items.reduce((acc, curr) => acc + curr.committed, 0);
   const totalRemaining = totalAllocated - totalSpent - totalCommitted;
   const burnRate = ((totalSpent / totalAllocated) * 100).toFixed(1);
 
-  const filtered = budgetItems.filter((item) => {
+  const filtered = items.filter((item) => {
     const matchesSearch =
       item.department.toLowerCase().includes(search.toLowerCase()) ||
       item.code.toLowerCase().includes(search.toLowerCase()) ||
@@ -66,6 +91,43 @@ export default function BudgetExpenditurePage() {
     const matchesFilter = filter === 'ALL' || item.status === filter;
     return matchesSearch && matchesFilter;
   });
+
+  const handleCreateAllocation = (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsedAmount = parseFloat(newAmount);
+    if (!parsedAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
+      toast.error('Invalid Amount', { description: 'Please enter a valid allocation figure.' });
+      return;
+    }
+
+    const newItem: BudgetItem = {
+      code: `BUD-GEN-0${items.length + 1}`,
+      department: newDept,
+      allocated: parsedAmount,
+      spent: 0,
+      committed: 0,
+      lead: newLead.trim() || 'Budget Controller',
+      status: 'ON_TRACK',
+    };
+
+    setItems([newItem, ...items]);
+    setNewAmount('');
+    setNewLead('');
+    setNewJustification('');
+    setOpenAllocationSheet(false);
+
+    toast.success('Allocation Approved', {
+      description: `$${parsedAmount.toLocaleString()} committed to ${newDept}.`,
+    });
+  };
+
+  const handleExportLedger = (e: React.FormEvent) => {
+    e.preventDefault();
+    setOpenExportSheet(false);
+    toast.success('Budget Ledger Exported', {
+      description: `Generated ${exportFormat} for ${exportScope}. Download starting now.`,
+    });
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -77,29 +139,22 @@ export default function BudgetExpenditurePage() {
             FY 2026/2027 · Annual Operating & Capital Allocation Oversight
           </p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        {/* Far-right vertically arranged pill buttons */}
+        <div className="flex flex-col items-end gap-2.5 shrink-0 py-1">
           <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs font-medium"
-            onClick={() =>
-              toast.success('Budget ledger exported', {
-                description: 'Departmental expenditure and PO commitments CSV downloaded.',
-              })
-            }
+            className="rounded-full w-48 h-9 text-xs font-semibold gap-2 shadow-xs justify-center"
+            onClick={() => setOpenAllocationSheet(true)}
           >
-            <FileSpreadsheet className="w-3.5 h-3.5" /> Export Ledger
+            <Plus className="w-4 h-4" />
+            New Allocation
           </Button>
           <Button
-            size="sm"
-            className="gap-1.5 text-xs font-semibold"
-            onClick={() =>
-              toast.info('New budget allocation', {
-                description: 'Opening department cost center allocation form...',
-              })
-            }
+            variant="outline"
+            className="rounded-full w-48 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() => setOpenExportSheet(true)}
           >
-            <Plus className="w-3.5 h-3.5" /> New Allocation
+            <FileSpreadsheet className="w-4 h-4" />
+            Export Ledger
           </Button>
         </div>
       </div>
@@ -297,6 +352,153 @@ export default function BudgetExpenditurePage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* New Allocation Sheet (Sliding from Right) */}
+      <Sheet open={openAllocationSheet} onOpenChange={setOpenAllocationSheet}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5 text-primary" />
+              New Budget Allocation
+            </SheetTitle>
+            <SheetDescription className="text-xs">
+              Authorize and commit fiscal budget lines to academic or operational departments.
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={handleCreateAllocation} className="space-y-4 pt-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Department / Cost Center</label>
+              <select
+                value={newDept}
+                onChange={(e) => setNewDept(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="Academic & Curriculum">Academic & Curriculum</option>
+                <option value="Facilities & Maintenance">Facilities & Maintenance</option>
+                <option value="Staff Development & Welfare">Staff Development & Welfare</option>
+                <option value="Technology & EdTech Software">Technology & EdTech Software</option>
+                <option value="Athletics & Extracurricular">Athletics & Extracurricular</option>
+                <option value="General Administration">General Administration</option>
+                <option value="Health Clinic & First Aid">Health Clinic & First Aid</option>
+                <option value="Campus Security & Safety">Campus Security & Safety</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Allocation Amount ($ USD)</label>
+              <Input
+                type="number"
+                placeholder="e.g. 50000"
+                value={newAmount}
+                onChange={(e) => setNewAmount(e.target.value)}
+                className="text-xs"
+                required
+                min="100"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Department Head / Authorized Lead</label>
+              <Input
+                placeholder="e.g. Dr. K. Mensah"
+                value={newLead}
+                onChange={(e) => setNewLead(e.target.value)}
+                className="text-xs"
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Justification / Expenditure Scope</label>
+              <Input
+                placeholder="e.g. Procurement of lab equipment & textbooks"
+                value={newJustification}
+                onChange={(e) => setNewJustification(e.target.value)}
+                className="text-xs"
+              />
+            </div>
+
+            <div className="p-3 bg-muted/30 rounded-lg text-xs space-y-1 border">
+              <p className="font-medium text-foreground">Encumbrance & Approval Notice:</p>
+              <p className="text-muted-foreground text-[11px] leading-relaxed">
+                Allocated funds are recorded in the general ledger immediately upon confirmation and made accessible for purchase requisitions.
+              </p>
+            </div>
+
+            <SheetFooter className="pt-4">
+              <Button type="button" variant="outline" size="sm" onClick={() => setOpenAllocationSheet(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="gap-1.5 font-semibold">
+                <CheckCircle2 className="h-4 w-4" />
+                Commit Allocation
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+
+      {/* Export Ledger Sheet (Sliding from Right) */}
+      <Sheet open={openExportSheet} onOpenChange={setOpenExportSheet}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <FileSpreadsheet className="h-5 w-5 text-primary" />
+              Export Expenditure Ledger
+            </SheetTitle>
+            <SheetDescription className="text-xs">
+              Generate detailed accounting breakdown with departmental line items and PO audit trails.
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={handleExportLedger} className="space-y-4 pt-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Fiscal Scope & Period</label>
+              <select
+                value={exportScope}
+                onChange={(e) => setExportScope(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="FY 2026/27 Full Audit">FY 2026/27 Full Audit (Consolidated)</option>
+                <option value="Q1 Operating Expenses">Q1 Operating Expenses</option>
+                <option value="Q2 Operating Expenses">Q2 Operating Expenses</option>
+                <option value="Capital Expenditures Only">Capital Expenditures Only</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Ledger Format</label>
+              <select
+                value={exportFormat}
+                onChange={(e) => setExportFormat(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="Excel (.xlsx)">Microsoft Excel Workbook (.xlsx)</option>
+                <option value="CSV (.csv)">Raw Comma-Separated Values (.csv)</option>
+                <option value="PDF (.pdf)">Printable Audited PDF (.pdf)</option>
+              </select>
+            </div>
+
+            <div className="p-3 bg-muted/30 rounded-lg text-xs space-y-1 border">
+              <p className="font-medium text-foreground">Included Audit Columns:</p>
+              <p className="text-muted-foreground text-[11px] leading-relaxed">
+                Code, Department Name, Approved Allocation, Actual Disbursed, Committed POs, Unencumbered Variance, Approver Sign-off.
+              </p>
+            </div>
+
+            <SheetFooter className="pt-4">
+              <Button type="button" variant="outline" size="sm" onClick={() => setOpenExportSheet(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="gap-1.5 font-semibold">
+                <Download className="h-4 w-4" />
+                Export Ledger
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

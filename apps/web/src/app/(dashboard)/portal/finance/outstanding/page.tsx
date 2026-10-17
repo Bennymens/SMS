@@ -36,29 +36,30 @@ export default function OutstandingPage() {
           <h1 className="text-2xl font-bold text-foreground">Outstanding Payments</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Students with unpaid or partial fee balances — Term 1</p>
         </div>
-        <div className="flex gap-2">
+        {/* Far-right vertically arranged pill buttons */}
+        <div className="flex flex-col items-end gap-2.5 shrink-0 py-1">
           <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 text-xs font-medium"
-            onClick={() =>
-              toast.success('Overdue list exported', {
-                description: 'Arrears register and guardian contact list downloaded.',
-              })
-            }
-          >
-            <Download className="h-3.5 w-3.5" />Export List
-          </Button>
-          <Button
-            size="sm"
-            className="gap-2 text-xs font-semibold"
+            className="rounded-full w-48 h-9 text-xs font-semibold gap-2 shadow-xs justify-center"
             onClick={() =>
               toast.success('Batch reminders dispatched', {
                 description: `Sent SMS & email debt collection notices to all ${outstanding.length} guardians.`,
               })
             }
           >
-            <Send className="h-3.5 w-3.5" />Send Reminders
+            <Send className="h-4 w-4" />
+            Send Reminders
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full w-48 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() =>
+              toast.success('Overdue list exported', {
+                description: 'Arrears register and guardian contact list downloaded.',
+              })
+            }
+          >
+            <Download className="h-4 w-4" />
+            Export List
           </Button>
         </div>
       </div>

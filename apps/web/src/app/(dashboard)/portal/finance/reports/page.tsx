@@ -11,8 +11,17 @@ import {
 } from '@/components/ui/table';
 import {
   FileText, Download, Filter, Search, Plus, Calendar, DollarSign,
-  TrendingUp, ArrowDownRight, ArrowUpRight, BarChart3, Printer,
+  TrendingUp, ArrowDownRight, ArrowUpRight, BarChart3, Printer, CheckCircle2,
 } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/toast';
 import {
   ChartContainer,
@@ -62,6 +71,31 @@ export default function FinancialReportsPage() {
   const [search, setSearch] = useState('');
   const [selectedType, setSelectedType] = useState('ALL');
 
+  const [openReportSheet, setOpenReportSheet] = useState(false);
+  const [openPrintSheet, setOpenPrintSheet] = useState(false);
+
+  // Form states
+  const [reportTitle, setReportTitle] = useState('Comprehensive Financial Audit Statement');
+  const [reportScope, setReportScope] = useState('Term 1 (2026/27)');
+  const [reportFormat, setReportFormat] = useState('PDF');
+  const [printerSelection, setPrinterSelection] = useState('HP LaserJet Pro 400 - Bursary');
+
+  const handleGenerateReport = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success('Report generation completed', {
+      description: `${reportTitle} compiled in ${reportFormat} format.`,
+    });
+    setOpenReportSheet(false);
+  };
+
+  const handlePrintOverview = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.info('Sending overview to print spooler', {
+      description: `Dispatched hardcopy task to ${printerSelection}.`,
+    });
+    setOpenPrintSheet(false);
+  };
+
   const filteredReports = reportDocuments.filter((r) => {
     const matchesSearch = r.name.toLowerCase().includes(search.toLowerCase()) || r.id.toLowerCase().includes(search.toLowerCase());
     const matchesType = selectedType === 'ALL' || r.type === selectedType;
@@ -78,29 +112,22 @@ export default function FinancialReportsPage() {
             Audit logs, statutory returns, cash flow balances, and departmental statements
           </p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        {/* Far-right vertically arranged pill buttons */}
+        <div className="flex flex-col items-end gap-2.5 shrink-0 py-1">
           <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs font-medium"
-            onClick={() =>
-              toast.info('Sending to printer', {
-                description: 'Formatting executive financial overview for hardcopy printing.',
-              })
-            }
+            className="rounded-full w-48 h-9 text-xs font-semibold gap-2 shadow-xs justify-center"
+            onClick={() => setOpenReportSheet(true)}
           >
-            <Printer className="w-3.5 h-3.5" /> Print Overview
+            <Plus className="w-4 h-4" />
+            Generate Report
           </Button>
           <Button
-            size="sm"
-            className="gap-1.5 text-xs font-semibold"
-            onClick={() =>
-              toast.success('Report generation triggered', {
-                description: 'Compiling real-time balance sheet, cash flows, and budget variance.',
-              })
-            }
+            variant="outline"
+            className="rounded-full w-48 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() => setOpenPrintSheet(true)}
           >
-            <Plus className="w-3.5 h-3.5" /> Generate Report
+            <Printer className="w-4 h-4" />
+            Print Overview
           </Button>
         </div>
       </div>
@@ -292,6 +319,144 @@ export default function FinancialReportsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Generate Report Sheet (Sliding from Right) */}
+      <Sheet open={openReportSheet} onOpenChange={setOpenReportSheet}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              Generate Financial Statement
+            </SheetTitle>
+            <SheetDescription className="text-xs">
+              Compile audited revenue summaries, cost center reconciliations, and cash flows.
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={handleGenerateReport} className="space-y-4 pt-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Report Description Title</label>
+              <Input
+                value={reportTitle}
+                onChange={(e) => setReportTitle(e.target.value)}
+                className="text-xs"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">Fiscal Scope</label>
+                <select
+                  value={reportScope}
+                  onChange={(e) => setReportScope(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="Term 1 (2026/27)">Term 1 (2026/27)</option>
+                  <option value="Term 2 (2026/27)">Term 2 (2026/27)</option>
+                  <option value="Annual Audit 2026">Annual Audit 2026</option>
+                  <option value="Q3 Cost Variance">Q3 Cost Variance</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">Output Format</label>
+                <select
+                  value={reportFormat}
+                  onChange={(e) => setReportFormat(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="PDF">Printable PDF (.pdf)</option>
+                  <option value="Excel">Excel Ledger (.xlsx)</option>
+                  <option value="CSV">Raw CSV (.csv)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="p-3 bg-muted/30 rounded-lg text-xs space-y-1.5 border">
+              <p className="font-medium text-foreground">Standard Statutory Inclusions:</p>
+              <p className="text-muted-foreground text-[11px] leading-relaxed">
+                Includes verified bank lodgments, MoMo reconciliation hashes, payroll breakdown, capital asset depreciation, and bursar sign-off block.
+              </p>
+            </div>
+
+            <SheetFooter className="pt-4">
+              <Button type="button" variant="outline" size="sm" onClick={() => setOpenReportSheet(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="gap-1.5 font-semibold">
+                <CheckCircle2 className="h-4 w-4" />
+                Compile & Generate
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+
+      {/* Print Overview Sheet (Sliding from Right) */}
+      <Sheet open={openPrintSheet} onOpenChange={setOpenPrintSheet}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Printer className="h-5 w-5 text-primary" />
+              Print Executive Overview
+            </SheetTitle>
+            <SheetDescription className="text-xs">
+              Format financial dashboards, charts, and key performance ratios for printing.
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={handlePrintOverview} className="space-y-4 pt-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Target Network Printer</label>
+              <select
+                value={printerSelection}
+                onChange={(e) => setPrinterSelection(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="HP LaserJet Pro 400 - Bursary">HP LaserJet Pro 400 - Bursary</option>
+                <option value="Canon iR-ADV C5535 - Headmaster Office">Canon iR-ADV C5535 - Headmaster Office</option>
+                <option value="Save as Executive PDF">Save as Executive PDF</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">Orientation</label>
+                <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                  <option>Landscape (Recommended)</option>
+                  <option>Portrait</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">Color Mode</label>
+                <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
+                  <option>Full Color (Charts)</option>
+                  <option>Monochrome (High Contrast)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="p-3 bg-muted/30 rounded-lg text-xs space-y-1 border">
+              <p className="font-medium text-foreground">Document Content Preview:</p>
+              <p className="text-muted-foreground text-[11px] leading-relaxed">
+                4-page summary featuring revenue collection rate (87.2%), budget utilization bar charts, aging arrears matrix, and certified audit log.
+              </p>
+            </div>
+
+            <SheetFooter className="pt-4">
+              <Button type="button" variant="outline" size="sm" onClick={() => setOpenPrintSheet(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="gap-1.5 font-semibold">
+                <Printer className="h-4 w-4" />
+                Dispatch to Printer
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

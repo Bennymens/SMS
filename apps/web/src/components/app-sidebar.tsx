@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import {
   GraduationCap,
   LayoutDashboard,
@@ -190,52 +190,61 @@ const roleConfig: Record<
 // ── shared nav renderer ───────────────────────────────────────────────────────
 function NavGroups({ groups }: { groups: NavGroup[] }) {
   const pathname = usePathname()
-  const router = useRouter()
-
-  React.useEffect(() => {
-    // Warm up and prefetch all tab routes so tab switching is instantaneous
-    for (const group of groups) {
-      for (const item of group.items) {
-        if (item.href && item.href !== "#") {
-          router.prefetch(item.href)
-        }
-      }
-    }
-  }, [groups, router])
 
   return (
-    <>
-      {groups.map((group) => (
-        <SidebarGroup key={group.label}>
-          <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {group.items.map((item) => {
-                const Icon = item.icon
-                const active =
-                  item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)
-                return (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton
-                      isActive={active}
-                      tooltip={item.label}
-                      onMouseEnter={() => router.prefetch(item.href)}
-                      render={<Link href={item.href} prefetch={true} />}
-                    >
-                      <Icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                    {item.badge ? (
-                      <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
-                    ) : null}
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+    <div className="relative pb-2">
+      {groups.map((group, groupIdx) => (
+        <React.Fragment key={group.label}>
+          {groupIdx > 0 && (
+            <div className="flex items-center pl-5 py-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0">
+              <div className="w-[1.5px] h-3.5 bg-sidebar-border/70 rounded-full" />
+            </div>
+          )}
+          <SidebarGroup className="relative p-2">
+            <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+              {group.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item, itemIdx) => {
+                  const Icon = item.icon
+                  const active =
+                    item.href === "/admin" ||
+                    item.href === "/portal/teacher" ||
+                    item.href === "/portal/finance" ||
+                    item.href === "/"
+                      ? pathname === item.href
+                      : pathname === item.href || pathname.startsWith(item.href + "/")
+
+                  return (
+                    <React.Fragment key={item.label}>
+                      <SidebarMenuItem className="relative">
+                        <SidebarMenuButton
+                          isActive={active}
+                          tooltip={item.label}
+                          render={<Link href={item.href} />}
+                        >
+                          <Icon />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                        {item.badge ? (
+                          <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                        ) : null}
+                      </SidebarMenuItem>
+                      {itemIdx < group.items.length - 1 && (
+                        <div className="flex items-center pl-5 py-0.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0">
+                          <div className="w-[1.5px] h-2.5 bg-sidebar-border/60 rounded-full" />
+                        </div>
+                      )}
+                    </React.Fragment>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </React.Fragment>
       ))}
-    </>
+    </div>
   )
 }
 
@@ -244,24 +253,22 @@ function RoleSidebar({ role }: { role: Role }) {
   const cfg = roleConfig[role]
   return (
     <Sidebar collapsible="icon">
-      {/* Header — logo + school name */}
-      <SidebarHeader>
-        <SidebarMenu>
+      {/* Header — logo + school name, exactly h-12 to align with navbar header line */}
+      <SidebarHeader className="h-12 flex-row items-center gap-2 border-b border-sidebar-border px-3 py-0">
+        <SidebarMenu className="w-full">
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/" />}>
-              <div className="flex aspect-square h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white">
+            <SidebarMenuButton size="default" className="h-9 w-full" render={<Link href="/" />}>
+              <div className="flex aspect-square h-7 w-7 items-center justify-center rounded-md bg-violet-600 text-white shrink-0">
                 <GraduationCap className="h-4 w-4" />
               </div>
-              <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold text-sm">EduManage</span>
-                <span className="text-xs text-muted-foreground">SMS v2</span>
+              <div className="flex flex-col gap-0 leading-none">
+                <span className="font-semibold text-sm leading-tight">EduManage</span>
+                <span className="text-[10px] text-muted-foreground leading-tight">SMS v2</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-
-      <SidebarSeparator />
 
       {/* Nav */}
       <SidebarContent>

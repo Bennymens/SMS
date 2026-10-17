@@ -229,22 +229,22 @@ export default function TeacherPortalDashboard() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" size="sm" asChild className="text-xs">
-            <Link href="/portal/teacher/classes" className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5" />
-              Classes &amp; Students
+        <div className="flex flex-col items-end gap-2.5 shrink-0 py-1">
+          <Button variant="outline" asChild className="rounded-full w-48 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50">
+            <Link href="/portal/teacher/classes" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Classes & Students
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs">
-            <Link href="/portal/teacher/assignments" className="flex items-center gap-1.5">
-              <FileCheck className="h-3.5 w-3.5" />
+          <Button variant="outline" asChild className="rounded-full w-48 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50">
+            <Link href="/portal/teacher/assignments" className="flex items-center gap-2">
+              <FileCheck className="h-4 w-4" />
               Grading Inbox
             </Link>
           </Button>
-          <Button variant="outline" size="sm" asChild className="text-xs">
-            <Link href="/portal/teacher/analytics" className="flex items-center gap-1.5">
-              <TrendingUp className="h-3.5 w-3.5" />
+          <Button variant="outline" asChild className="rounded-full w-48 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50">
+            <Link href="/portal/teacher/analytics" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
               Analytics
             </Link>
           </Button>

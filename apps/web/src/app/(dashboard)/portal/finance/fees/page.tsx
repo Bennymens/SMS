@@ -14,6 +14,15 @@ import {
   CreditCard, Download, Search, Plus, Filter, CheckCircle2,
   AlertCircle, Clock, ArrowRight,
 } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/toast';
 
 const payments = [
@@ -36,6 +45,40 @@ const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'out
 export default function FeeCollectionPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'ALL' | 'PAID' | 'PARTIAL' | 'OVERDUE'>('ALL');
+  const [openPaymentSheet, setOpenPaymentSheet] = useState(false);
+  const [openExportSheet, setOpenExportSheet] = useState(false);
+
+  // Form states for payment
+  const [payStudent, setPayStudent] = useState('');
+  const [payAmount, setPayAmount] = useState('');
+  const [payMethod, setPayMethod] = useState('Mobile Money');
+  const [payFeeType, setPayFeeType] = useState('Tuition Fees');
+
+  // Form states for export
+  const [exportFormat, setExportFormat] = useState('CSV');
+  const [exportTerm, setExportTerm] = useState('Term 1 (2024/2025)');
+
+  const handleRecordPayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!payStudent || !payAmount) {
+      toast.error('Missing details', { description: 'Please provide both student name and payment amount.' });
+      return;
+    }
+    toast.success('Payment recorded successfully', {
+      description: `$${payAmount} receipt confirmed for ${payStudent} via ${payMethod}.`,
+    });
+    setOpenPaymentSheet(false);
+    setPayStudent('');
+    setPayAmount('');
+  };
+
+  const handleExportStatement = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success('Ledger statement exported', {
+      description: `Downloaded ${exportFormat} statement for ${exportTerm}.`,
+    });
+    setOpenExportSheet(false);
+  };
 
   const shown = payments.filter((p) => {
     const matchFilter = filter === 'ALL' || p.status === filter;
@@ -58,21 +101,22 @@ export default function FeeCollectionPage() {
           <h1 className="text-2xl font-bold text-foreground">Fee Collection</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Term 1 · 2024/2025 Academic Year · Oakridge Academy</p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        {/* Far-right vertically arranged pill buttons */}
+        <div className="flex flex-col items-end gap-2.5 shrink-0 py-1">
           <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 text-xs"
-            onClick={() => toast.success('Fee ledger exported', { description: 'CSV fee report has been downloaded.' })}
+            className="rounded-full w-48 h-9 text-xs font-semibold gap-2 shadow-xs justify-center"
+            onClick={() => setOpenPaymentSheet(true)}
           >
-            <Download className="h-3.5 w-3.5" />Export
+            <Plus className="h-4 w-4 shrink-0" />
+            Record Payment
           </Button>
           <Button
-            size="sm"
-            className="gap-2 text-xs"
-            onClick={() => toast.info('Record payment selected', { description: 'Opening payment receipt modal...' })}
+            variant="outline"
+            className="rounded-full w-48 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() => setOpenExportSheet(true)}
           >
-            <Plus className="h-3.5 w-3.5" />Record Payment
+            <Download className="h-4 w-4 shrink-0" />
+            Export Fee Ledger
           </Button>
         </div>
       </div>
@@ -182,11 +226,162 @@ export default function FeeCollectionPage() {
         </CardContent>
         <CardFooter className="justify-between">
           <p className="text-xs text-muted-foreground">{shown.length} of {payments.length} records</p>
-          <Button variant="ghost" size="sm" className="text-xs gap-1">
+          <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => setOpenExportSheet(true)}>
             Export CSV <ArrowRight className="h-3 w-3" />
           </Button>
         </CardFooter>
       </Card>
+
+      {/* Record Payment Sheet (Sliding from Right) */}
+      <Sheet open={openPaymentSheet} onOpenChange={setOpenPaymentSheet}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-primary" />
+              Record Student Fee Payment
+            </SheetTitle>
+            <SheetDescription className="text-xs">
+              Log instant receipts, MoMo transactions, bank slips, and tuition installments.
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={handleRecordPayment} className="space-y-4 pt-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Student Name</label>
+              <Input
+                placeholder="e.g. Emily Watson"
+                value={payStudent}
+                onChange={(e) => setPayStudent(e.target.value)}
+                className="text-xs"
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Payment Amount ($)</label>
+              <Input
+                type="number"
+                placeholder="e.g. 1200"
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                className="text-xs"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">Payment Channel</label>
+                <select
+                  value={payMethod}
+                  onChange={(e) => setPayMethod(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="Mobile Money">Mobile Money (MoMo)</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Cash">Cash at Bursary</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Card">Debit/Credit Card</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">Fee Category</label>
+                <select
+                  value={payFeeType}
+                  onChange={(e) => setPayFeeType(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="Tuition Fees">Tuition Fees</option>
+                  <option value="Examination Levy">Examination Levy</option>
+                  <option value="Library Fund">Library Fund</option>
+                  <option value="PTA Dues">PTA Dues</option>
+                  <option value="Boarding Fees">Boarding Fees</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Transaction / Receipt Reference</label>
+              <Input
+                placeholder="e.g. TXN-MOMO-8839210"
+                className="text-xs"
+              />
+            </div>
+
+            <SheetFooter className="pt-4">
+              <Button type="button" variant="outline" size="sm" onClick={() => setOpenPaymentSheet(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="gap-1.5 font-semibold">
+                <CheckCircle2 className="h-4 w-4" />
+                Confirm & Issue Receipt
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+
+      {/* Export Ledger Sheet (Sliding from Right) */}
+      <Sheet open={openExportSheet} onOpenChange={setOpenExportSheet}>
+        <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5 text-primary" />
+              Export Fee Ledger & Statement
+            </SheetTitle>
+            <SheetDescription className="text-xs">
+              Generate structured audit sheets, revenue logs, and student arrears summaries.
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={handleExportStatement} className="space-y-4 pt-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">File Format</label>
+              <select
+                value={exportFormat}
+                onChange={(e) => setExportFormat(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="CSV">Comma Separated Values (.csv)</option>
+                <option value="Excel">Microsoft Excel (.xlsx)</option>
+                <option value="PDF">Audit PDF Statement (.pdf)</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Academic Term</label>
+              <select
+                value={exportTerm}
+                onChange={(e) => setExportTerm(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="Term 1 (2024/2025)">Term 1 (2024/2025 Academic Year)</option>
+                <option value="Term 2 (2024/2025)">Term 2 (2024/2025 Academic Year)</option>
+                <option value="Term 3 (2023/2024)">Term 3 (2023/2024 Academic Year)</option>
+                <option value="Full Year Reconciliation">Full Year Consolidated Reconciliation</option>
+              </select>
+            </div>
+
+            <div className="p-3 bg-muted/30 rounded-lg text-xs space-y-1.5 border">
+              <p className="font-medium text-foreground">Included Data Fields:</p>
+              <p className="text-muted-foreground text-[11px] leading-relaxed">
+                Student ID, Student Full Name, Grade Cohort, Billed Amount, Total Collected, Unpaid Balance, Receipt No, Payment Channel, and Verification Timestamp.
+              </p>
+            </div>
+
+            <SheetFooter className="pt-4">
+              <Button type="button" variant="outline" size="sm" onClick={() => setOpenExportSheet(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="gap-1.5 font-semibold">
+                <Download className="h-4 w-4" />
+                Download Statement
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

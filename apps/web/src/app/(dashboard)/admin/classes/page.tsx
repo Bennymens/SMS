@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { School, Plus, Users, BookOpen, CheckCircle2, Sliders } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
@@ -164,18 +164,18 @@ export default function AdminClassesPage() {
         ))}
       </div>
 
-      {/* Create Section Modal */}
-      <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* Create Section Sheet */}
+      <Sheet open={openModal} onOpenChange={setOpenModal}>
+        <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
               <School className="h-5 w-5 text-primary" />
               Create Class Section
-            </DialogTitle>
-            <DialogDescription className="text-xs">
+            </SheetTitle>
+            <SheetDescription className="text-xs">
               Assign a new section code, physical room location, and designated homeroom tutor.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
           <form onSubmit={handleCreateSection} className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-3">
@@ -238,7 +238,7 @@ export default function AdminClassesPage() {
               />
             </div>
 
-            <DialogFooter>
+            <SheetFooter className="pt-4">
               <Button type="button" variant="outline" size="sm" onClick={() => setOpenModal(false)}>
                 Cancel
               </Button>
@@ -246,10 +246,10 @@ export default function AdminClassesPage() {
                 <CheckCircle2 className="h-4 w-4" />
                 Register Section
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

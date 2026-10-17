@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import { UserCheck, CheckCircle2, Clock, Calendar, Download, Users, Check, X, AlertCircle } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
 
@@ -88,30 +88,28 @@ export default function TeacherAttendancePage() {
             Take roll-call, verify biometric logs, and mark excused medical leaves.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-end gap-2.5 shrink-0 py-1">
           <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() =>
-              toast.success('Attendance summary exported', {
-                description: 'Today’s campus attendance CSV report generated and downloaded.',
-              })
-            }
-          >
-            <Download className="h-3.5 w-3.5" />
-            Export Daily Register
-          </Button>
-          <Button
-            size="sm"
-            className="gap-1.5 text-xs font-semibold"
+            className="rounded-full w-52 h-9 text-xs font-semibold gap-2 shadow-xs justify-center"
             onClick={() => {
               const pending = classes.find((c) => c.status === 'Pending') || classes[0];
               setActiveSession(pending);
             }}
           >
-            <CheckCircle2 className="h-3.5 w-3.5" />
+            <CheckCircle2 className="h-4 w-4" />
             Mark Attendance Now
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-full w-52 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() =>
+              toast.success('Attendance summary exported', {
+                description: "Today's campus attendance CSV report generated and downloaded.",
+              })
+            }
+          >
+            <Download className="h-4 w-4" />
+            Export Daily Register
           </Button>
         </div>
       </div>
@@ -154,36 +152,45 @@ export default function TeacherAttendancePage() {
         ))}
       </div>
 
-      {/* Roll Call Modal */}
+      {/* Roll Call Sheet */}
       {activeSession && (
-        <Dialog open={!!activeSession} onOpenChange={(open) => !open && setActiveSession(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+        <Sheet open={!!activeSession} onOpenChange={(open) => !open && setActiveSession(null)}>
+          <SheetContent side="right" className="sm:max-w-md overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="flex items-center gap-2">
                 <UserCheck className="h-5 w-5 text-primary" />
                 Roll-Call: {activeSession.name}
-              </DialogTitle>
-              <DialogDescription className="text-xs">
+              </SheetTitle>
+              <SheetDescription className="text-xs">
                 {activeSession.period} • {activeSession.time} • Room: {activeSession.room}
-              </DialogDescription>
-            </DialogHeader>
+              </SheetDescription>
+            </SheetHeader>
 
-            <div className="p-4 rounded-xl border bg-muted/20 space-y-3 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Registered Students:</span>
-                <span className="font-bold text-foreground">32 Enrolled</span>
+            <div className="py-6 space-y-4">
+              <div className="p-4 rounded-xl border bg-muted/20 space-y-3 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Registered Students:</span>
+                  <span className="font-bold text-foreground">32 Enrolled</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Biometric Clock-ins:</span>
+                  <span className="font-semibold text-foreground">28 Verified at Turnstile</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Excused Absences:</span>
+                  <span className="font-semibold text-foreground">1 Medical note registered</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Biometric Clock-ins:</span>
-                <span className="font-semibold text-foreground">28 Verified at Turnstile</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Excused Absences:</span>
-                <span className="font-semibold text-foreground">1 Medical note registered</span>
+
+              <div className="rounded-lg border p-3 bg-card space-y-2 text-xs">
+                <p className="font-medium text-foreground">Automated Notification:</p>
+                <p className="text-muted-foreground text-[11px] leading-relaxed">
+                  SMS alerts will be automatically dispatched to guardians of students marked absent without confirmed excuse.
+                </p>
               </div>
             </div>
 
-            <DialogFooter className="gap-2 sm:gap-0">
+            <SheetFooter className="gap-2 sm:gap-0 pt-4">
               <Button variant="outline" size="sm" onClick={() => setActiveSession(null)}>
                 Cancel
               </Button>
@@ -191,9 +198,9 @@ export default function TeacherAttendancePage() {
                 <Check className="h-4 w-4" />
                 Submit Attendance Register
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
       )}
     </div>
   );

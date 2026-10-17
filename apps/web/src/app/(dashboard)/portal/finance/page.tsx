@@ -183,24 +183,23 @@ export default function FinanceDashboardPage() {
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {/* Far-right vertically arranged pill buttons */}
+          <div className="flex flex-col items-end gap-2.5 shrink-0 py-1">
+            <Button
+              className="rounded-full w-48 h-9 text-xs font-semibold gap-2 shadow-xs justify-center"
+              onClick={() => setPaymentSheetOpen(true)}
+            >
+              <CreditCard className="w-4 h-4" />
+              Record Payment
+            </Button>
             <Button
               variant="outline"
-              size="sm"
-              className="gap-2 text-xs font-medium"
+              className="rounded-full w-48 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50"
               onClick={handleExportReport}
               disabled={isExporting}
             >
-              {isExporting ? <Spinner className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
+              {isExporting ? <Spinner className="h-4 w-4" /> : <Download className="h-4 w-4" />}
               {isExporting ? 'Exporting...' : 'Export Report'}
-            </Button>
-            <Button
-              size="sm"
-              className="gap-2 text-xs"
-              onClick={() => setPaymentSheetOpen(true)}
-            >
-              <CreditCard className="h-3.5 w-3.5" />
-              Record Payment
             </Button>
           </div>
         </div>

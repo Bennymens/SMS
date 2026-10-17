@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Bell, Plus, Pin, Calendar, Send, CheckCircle2 } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
@@ -88,8 +88,11 @@ export default function TeacherAnnouncementsPage() {
             Administrative circulars, departmental meetings, and classroom announcements.
           </p>
         </div>
-        <Button size="sm" onClick={() => setOpenModal(true)} className="gap-1.5 text-xs font-semibold">
-          <Plus className="h-3.5 w-3.5" />
+        <Button
+          className="rounded-full w-52 h-9 text-xs font-semibold gap-2 shadow-xs justify-center"
+          onClick={() => setOpenModal(true)}
+        >
+          <Plus className="h-4 w-4" />
           Post Class Announcement
         </Button>
       </div>
@@ -119,20 +122,20 @@ export default function TeacherAnnouncementsPage() {
         ))}
       </div>
 
-      {/* Post Modal */}
-      <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* Post Sheet */}
+      <Sheet open={openModal} onOpenChange={setOpenModal}>
+        <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-primary" />
               Publish Classroom Announcement
-            </DialogTitle>
-            <DialogDescription className="text-xs">
+            </SheetTitle>
+            <SheetDescription className="text-xs">
               Broadcast homework updates, syllabus changes, or reminders directly to class feeds.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
-          <form onSubmit={handlePostAnnouncement} className="space-y-4 pt-2">
+          <form onSubmit={handlePostAnnouncement} className="space-y-4 pt-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Announcement Title</label>
               <Input
@@ -162,7 +165,7 @@ export default function TeacherAnnouncementsPage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Message Body</label>
               <textarea
-                rows={3}
+                rows={4}
                 placeholder="Write full announcement details here..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -171,7 +174,7 @@ export default function TeacherAnnouncementsPage() {
               />
             </div>
 
-            <DialogFooter>
+            <SheetFooter className="pt-4">
               <Button type="button" variant="outline" size="sm" onClick={() => setOpenModal(false)}>
                 Cancel
               </Button>
@@ -179,10 +182,10 @@ export default function TeacherAnnouncementsPage() {
                 <Send className="h-3.5 w-3.5" />
                 Broadcast Notice
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

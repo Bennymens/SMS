@@ -102,8 +102,11 @@ export default function TeacherExamsPage() {
             Supervision rosters, question paper submissions, and grading quotas.
           </p>
         </div>
-        <Button size="sm" onClick={() => setOpenSubmitModal(true)} className="gap-1.5 text-xs font-semibold">
-          <Plus className="h-3.5 w-3.5" />
+        <Button
+          className="rounded-full w-52 h-9 text-xs font-semibold gap-2 shadow-xs justify-center"
+          onClick={() => setOpenSubmitModal(true)}
+        >
+          <Plus className="h-4 w-4" />
           Submit Question Paper
         </Button>
       </div>

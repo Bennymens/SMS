@@ -163,11 +163,9 @@ export default function TeacherGradesPage() {
             Tap on any student name to open the grade entry modal (Class Score, Midterm, Final Exam).
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
+        <Button
             variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
+            className="rounded-full w-40 h-9 text-xs font-medium gap-2 shadow-2xs justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50"
             onClick={() => {
               const headers = ['Student ID', 'Student Name', 'Class Score (30)', 'Midterm Score (30)', 'Final Exam (40)', 'Total (%)', 'Grade', 'Remarks'];
               const rows = activeCohort.students.map((s) => {
@@ -185,10 +183,9 @@ export default function TeacherGradesPage() {
               });
             }}
           >
-            <Download className="h-3.5 w-3.5" />
+            <Download className="h-4 w-4" />
             Export CSV
           </Button>
-        </div>
       </div>
 
       {/* Cohort Selector & Search Filter */}
@@ -358,13 +355,13 @@ export default function TeacherGradesPage() {
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10 rounded-lg border border-border">
                     <AvatarFallback className="rounded-lg bg-muted text-foreground font-bold text-xs">
-                      {editingStudent.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                      {editingStudent!.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <SheetTitle className="text-base font-bold">{editingStudent.name}</SheetTitle>
+                    <SheetTitle className="text-base font-bold">{editingStudent!.name}</SheetTitle>
                     <SheetDescription className="text-xs">
-                      ID: <span className="font-mono text-foreground font-semibold">{editingStudent.id}</span> • {activeCohort.className}
+                      ID: <span className="font-mono text-foreground font-semibold">{editingStudent!.id}</span> • {activeCohort.className}
                     </SheetDescription>
                   </div>
                 </div>

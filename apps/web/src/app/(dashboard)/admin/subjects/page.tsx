@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { BookOpen, Plus, FileText, CheckCircle2, Download, Sliders } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
@@ -143,18 +143,18 @@ export default function AdminSubjectsPage() {
         ))}
       </div>
 
-      {/* Add Subject Modal */}
-      <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* Add Subject Sheet */}
+      <Sheet open={openModal} onOpenChange={setOpenModal}>
+        <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
               Add Course / Subject
-            </DialogTitle>
-            <DialogDescription className="text-xs">
+            </SheetTitle>
+            <SheetDescription className="text-xs">
               Introduce a new syllabus course code, assigned department, and credit weight.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
           <form onSubmit={handleAddSubject} className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-3">
@@ -230,7 +230,7 @@ export default function AdminSubjectsPage() {
               />
             </div>
 
-            <DialogFooter>
+            <SheetFooter className="pt-4">
               <Button type="button" variant="outline" size="sm" onClick={() => setOpenModal(false)}>
                 Cancel
               </Button>
@@ -238,10 +238,10 @@ export default function AdminSubjectsPage() {
                 <CheckCircle2 className="h-4 w-4" />
                 Register Course
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

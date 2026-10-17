@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { ClipboardList, Plus, Calendar, CheckCircle2, Ticket, Download } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
@@ -133,18 +133,18 @@ export default function AdminExamsPage() {
         ))}
       </div>
 
-      {/* Modal */}
-      <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* Schedule Exam Sheet */}
+      <Sheet open={openModal} onOpenChange={setOpenModal}>
+        <SheetContent side="right" className="sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
               <ClipboardList className="h-5 w-5 text-primary" />
               Schedule Institutional Examination
-            </DialogTitle>
-            <DialogDescription className="text-xs">
+            </SheetTitle>
+            <SheetDescription className="text-xs">
               Establish exam dates, venues, and student grade cohort eligibility.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
           <form onSubmit={handleCreateExam} className="space-y-4 pt-2">
             <div className="space-y-1.5">
@@ -188,7 +188,7 @@ export default function AdminExamsPage() {
               </div>
             </div>
 
-            <DialogFooter>
+            <SheetFooter className="pt-4">
               <Button type="button" variant="outline" size="sm" onClick={() => setOpenModal(false)}>
                 Cancel
               </Button>
@@ -196,10 +196,10 @@ export default function AdminExamsPage() {
                 <CheckCircle2 className="h-4 w-4" />
                 Confirm & Publish
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
